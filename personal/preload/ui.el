@@ -4,6 +4,19 @@
       ;; 'solarized-dark
       )
 
+;; show line number
+(global-linum-mode 1)
+;; https://coldnew.github.io/f0802775/
+(setq inhibit-linum-mode-alist
+      '(w3m-mode
+        eshell-mode
+        shell-mode
+        term-mode))
+(defadvice linum-on (around inhibit-for-modes activate)
+  "Stop turing linum-mode if it is in the inhibit-linum-mode-alist."
+  (unless (member major-mode inhibit-linum-mode-alist)
+    ad-do-it))
+
 ;; highlight selected text
 (set-face-attribute 'region nil :background "#666" :foreground "#ffffff")
 
