@@ -21,7 +21,7 @@
 (set-face-attribute 'region nil :background "#666" :foreground "#ffffff")
 
 ;; transparent
-(set-frame-parameter (selected-frame) 'alpha '(95 . 100))
+(set-frame-parameter (selected-frame) 'alpha '(85 . 100))
 (add-to-list 'default-frame-alist '(alpha . (95 . 90)))
 
 ;; Smooth Scrolling

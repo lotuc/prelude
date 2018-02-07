@@ -1,5 +1,6 @@
 (prelude-require-packages '(org-plus-contrib
-                            htmlize))
+                            htmlize
+                            ob-http))
 (require 'org)
 
 (setq org-confirm-babel-evaluate nil)
@@ -46,6 +47,7 @@
    (screen . nil)
    (shell . t)
    (sql . nil)
-   (sqlite . t)))
+   (sqlite . t)
+   (http . t)))
 
 (provide 'personal-org)
