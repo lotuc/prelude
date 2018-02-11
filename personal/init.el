@@ -9,3 +9,4 @@
 (require 'personal-xml)
 (require 'personal-rust)
 (require 'personal-org)
+(require 'personal-ts)
