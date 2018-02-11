@@ -26,6 +26,6 @@
            charset
            (font-spec :family "WenQuanYi Zen Hei Mono" :size (+ size 2))))))))
 
-(lotuc-set-cn-font-size 14)
+(lotuc-set-cn-font-size 12)
 
 (provide 'personal-font)

@@ -2,7 +2,9 @@
                             org-plus-contrib
                             magit
                             elfeed
-                            elfeed-org))
+                            elfeed-org
+                            docker
+                            w3m))
 (require 'whitespace)
 (require 'multiple-cursors)
 (require 'elfeed)
@@ -51,13 +53,23 @@ crux-kill-other-buffers 'Doesn't mess with special buffers', we kill all others"
 (elfeed-org)
 (let ((lotuc-subscribed-elfeed "~/.emacs.d/personal/private/elfeed.org"))
   (when (file-exists-p lotuc-subscribed-elfeed)
-      (setq rmh-elfeed-org-files (list lotuc-subscribed-elfeed))))
+    (setq rmh-elfeed-org-files (list lotuc-subscribed-elfeed))))
+
+(defface starred-elfeed-entry
+  '((t :foreground "#e70"))
+  "Marks an important Elfeed entry.")
+
+(push '(star starred-elfeed-entry) elfeed-search-face-alist)
+
+;; w3m
+(global-set-key "\C-cm" 'w3m-browse-url)
 
 ;; whitespace-mode
 (defun turn-off-whitespace-hook ()
   (whitespace-mode -1))
 (add-hook 'org-mode-hook 'turn-off-whitespace-hook)
 (add-hook 'gfm-mode-hook 'turn-off-whitespace-hook)
+(add-hook 'elfeed-show-mode-hook 'turn-off-whitespace-hook)
 
 (defun list-git-repo-in-directory-recursively (dir dep)
   "find git repo under directory recursively with within the depth"
@@ -98,5 +110,29 @@ crux-kill-other-buffers 'Doesn't mess with special buffers', we kill all others"
                 '("~/.emacs.d")
                 (list-git-repo-in-directory-recursively "~/Workspace/" 5)))))
     (magit-status-internal repo)))
+
+
+(setq line-number-display-limit large-file-warning-threshold)
+(setq line-number-display-limit-width 200)
+(defun my--is-file-large ()
+  "If buffer too large and my cause performance issue."
+  (< large-file-warning-threshold (buffer-size)))
+
+(define-derived-mode my-large-file-mode fundamental-mode "LargeFile"
+  "Fixes performance issues in Emacs for large files."
+  ;; (setq buffer-read-only t)
+  (setq bidi-display-reordering nil)
+  (jit-lock-mode nil)
+  (buffer-disable-undo)
+  (set (make-variable-buffer-local 'global-hl-line-mode) nil)
+  (set (make-variable-buffer-local 'line-number-mode) nil)
+  (set (make-variable-buffer-local 'column-number-mode) nil) )
+
+(add-to-list 'magic-mode-alist (cons #'my--is-file-large #'my-large-file-mode))
+
+;; (add-hook 'find-file-hook
+;;           (when (> (buffer-size) (* 1024 1024))
+;;             (setq buffer-read-only t)
+;;             (buffer-disable-undo)))
 
 (provide 'personal-misc)

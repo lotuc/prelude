@@ -1,6 +1,7 @@
 (prelude-require-packages '(autumn-light-theme
                             dracula-theme
                             solarized-theme
+                            moe-theme
                             treemacs))
 (require 'treemacs)
 (require 'prelude-helm-everywhere)

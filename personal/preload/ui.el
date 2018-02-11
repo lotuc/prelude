@@ -11,7 +11,9 @@
       '(w3m-mode
         eshell-mode
         shell-mode
-        term-mode))
+        term-mode
+        nxml-mode
+        elfeed-search-mode))
 (defadvice linum-on (around inhibit-for-modes activate)
   "Stop turing linum-mode if it is in the inhibit-linum-mode-alist."
   (unless (member major-mode inhibit-linum-mode-alist)
