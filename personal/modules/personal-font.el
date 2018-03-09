@@ -1,5 +1,8 @@
 (prelude-require-packages '(pangu-spacing))
-;; WenQuanYi:14 + Monaco:12，中英文字体宽度2:1对齐
+;; 以下字体可以让英文宽度：中文宽度为 1:2
+;; Monaco:12 : WenQuanYi Zen Hei Mono:14
+;; Monaco:12 : Kaiti SC:13
+
 ;; |中文中文中文中文|
 ;; |abcdefghijklmnop|
 
@@ -8,7 +11,23 @@
 (defun enable-pangu-spacing-hook ()
   ;; 添加空白到文档，而不只是展示上的
   (set (make-local-variable 'pangu-spacing-real-insert-separtor) t))
-(add-hook 'org-mode-hook 'enable-pangu-spacing-hook)
+;; (add-hook 'org-mode-hook 'enable-pangu-spacing-hook)
+
+(defun lotuc-set-cn-kaiti ()
+  (interactive)
+  (when (not (equal system-type 'cygwin))
+    ;; windows Cygwin 环境中这段代码似乎不能运行
+    (when (not (null (x-list-fonts "Monaco")))
+      ;; Monaco: 12
+      (set-face-attribute 'default nil :font (format "Monaco %d" 12))
+      ;; 中文使用Kaiti SC:13
+      (when (not (null (x-list-fonts "Kaiti SC")))
+        (dolist (charset '(kana han symbol cjk-misc bopomofo))
+          (set-fontset-font
+           (frame-parameter nil 'font)
+           charset
+           (font-spec :family "Kaiti SC" :size 14)))))))
+(lotuc-set-cn-kaiti)
 
 (defun lotuc-set-cn-font-size (size)
   "设置字体大小，仅在有 WenQuanYi Zen Hei Mono + Monaco 时有效"
@@ -26,6 +45,18 @@
            charset
            (font-spec :family "WenQuanYi Zen Hei Mono" :size (+ size 2))))))))
 
-(lotuc-set-cn-font-size 12)
+;; (create-fontset-from-fontset-spec
+;;  "-apple-Consolas-normal-normal-normal-*-13-*-*-*-m-0-fontset-mac")
+;; (add-to-list 'default-frame-alist '(font . "fontset-mac"))
+;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
+;;   (set-fontset-font "fontset-default" 'han "Kaiti SC"))
+;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
+;;   (set-fontset-font "fontset-mac" 'han "Kaiti SC"))
+
+;; (setq face-font-rescale-alist
+;;       '(
+;;         (".*Kaiti SC.*" . 1.1)
+;;         (".*Heiti SC.*" . 1.1)
+;;         ))
 
 (provide 'personal-font)

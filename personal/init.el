@@ -10,3 +10,7 @@
 (require 'personal-rust)
 (require 'personal-org)
 (require 'personal-ts)
+(require 'calibre-mode)
+
+(setq calibre-root-dir (expand-file-name "~/Calibre Library/Library"))
+(setq calibre-db (concat calibre-root-dir "/metadata.db"))

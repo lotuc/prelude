@@ -67,7 +67,6 @@ crux-kill-other-buffers 'Doesn't mess with special buffers', we kill all others"
 ;; whitespace-mode
 (defun turn-off-whitespace-hook ()
   (whitespace-mode -1))
-(add-hook 'org-mode-hook 'turn-off-whitespace-hook)
 (add-hook 'gfm-mode-hook 'turn-off-whitespace-hook)
 (add-hook 'elfeed-show-mode-hook 'turn-off-whitespace-hook)
 
