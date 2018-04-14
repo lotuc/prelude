@@ -1,6 +1,5 @@
-(prelude-require-packages '(eshell-prompt-extras))
-(require 'eshell-prompt-extras)
-
+(require 'eshell)
+(require 'em-dirs)
 ;; 方便清除 eshell buffer
 (defun eshell/c ()
   (let ((eshell-buffer-maximum-lines 0))
@@ -14,10 +13,31 @@
             ;; 启动时那条消息清一下
             (eshell/c)))
 
+;; open file in eshell
+(defalias 'o 'find-file)
+(defalias 'oo 'find-file-other-window)
+
+;; (prelude-require-packages '(eshell-prompt-extras))
+;; (require 'eshell-prompt-extras)
+
 ;; elshell-prompt-extras
-(with-eval-after-load "esh-opt"
-  (autoload 'epe-theme-dakrone "eshell-prompt-extras")
-  (setq eshell-highlight-prompt nil
-        eshell-prompt-function 'epe-theme-dakrone))
+;; (with-eval-after-load "esh-opt"
+;;   (autoload 'epe-theme-dakrone "eshell-prompt-extras")
+;;   (setq eshell-highlight-prompt nil
+;;         eshell-prompt-function 'epe-theme-dakrone))
+
+(defun lotuc-eshell-here ()
+  "Go to eshell and set current directory to the buffer's directory"
+  (interactive)
+  (let ((dir (file-name-directory (or (buffer-file-name)
+                                      default-directory))))
+    (eshell)
+    (eshell/pushd ".")
+    (cd dir)
+    (goto-char (point-max))
+    (eshell-kill-input)
+    (eshell-send-input)))
+
+(global-set-key (kbd "C-x C-m") 'lotuc-eshell-here)
 
 (provide 'personal-eshell)

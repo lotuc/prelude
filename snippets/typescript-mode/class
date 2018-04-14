@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: class definition
+# key: c
+# --
+class $1 {
+  $0
+}

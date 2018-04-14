@@ -27,3 +27,9 @@ network-security.data
 prelude-cheatsheet.el
 prelude-cheatsheet.aux
 prelude-cheatsheet.log
+anaconda-mode/
+.mc-lists.el
+.org-id-locations 
+org-clock-save.el
+ac-comphist.dat
+emms/

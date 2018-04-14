@@ -42,23 +42,6 @@
          "open")
         (t (message "unknown system!?"))))
 
-;; CREATE TABLE pdftext ( filepath CHAR(255) PRIMARY KEY, content TEXT );
-;; (defvar calibre-text-cache-db (expand-file-name "~/Documents/pdftextcache.db"))
-;; (defun calibre-get-cached-pdf-text (pdf-filepath)
-;;   (let ((found-text (shell-command-to-string
-;;                      (format "%s -separator '\t' '%s' 'SELECT content FROM pdftext WHERE filepath = '%s'" sql-sqlite-program calibre-text-cache-db pdf-filepath))))
-;;     (if (< 0 (length found-text))
-;;         found-text
-;;       (let ((text-extract (shell-command-to-string
-;;                            (format "pdftotext '%s' -" pdf-filepath))))
-;;         (message "supposed to insert this!")
-;;         ))))
-
-
-;; (shell-command-to-string
-;;  (format "%s -separator '\t' '%s' '%s'" sql-sqlite-program calibre-db ".schema books"))
-
-
 (defun calibre-query (sql-query)
   (shell-command-to-string
    (format "%s -separator '\t' '%s' '%s'" sql-sqlite-program calibre-db sql-query)))
@@ -85,89 +68,49 @@
           "LEFT OUTER JOIN books AS b ON d.book = b.id "
           whereclause
           (when limit
-            (format "LIMIT %s" limit))
-          ))
+            (format "LIMIT %s" limit))))
 
 (defun calibre-query-by-field (wherefield argstring)
   (concat "WHERE lower(" wherefield ") LIKE '\\''%%"
           (format "%s" (downcase argstring))
-          "%%'\\''"
-          ))
+          "%%'\\''"))
 
-(defun calibre-read-query-filter-command ()
-  (let* ((default-string (if mark-active (calibre-chomp (buffer-substring (mark) (point)))))
-         ;; prompt &optional initial keymap read history default
-         (search-string (read-string (format "search string%s: "
-                                             (if default-string
-                                                 (concat " [" default-string "]")
-                                               "")) nil nil default-string))
-         (spl-arg (split-string search-string ":")))
+(defun calibre-parse-query-string (search-string)
+  (interactive)
+  "a:<author_name> | t:<title_name> | <author_or_title>"
+  (let ((spl-arg (split-string search-string ":")))
     (if (and (< 1 (length spl-arg))
              (= 1 (length (first spl-arg))))
         (let* ((command (downcase (first spl-arg)))
                (argstring (second spl-arg))
                (wherefield
-                (cond ((string= "a" (substring command 0 1))
+                (cond ((or (string= "a" (substring command 0 1))
+                           (string= "author" (substring command 0 1)))
                        "b.author_sort")
-                      ((string= "t" (substring command 0 1))
+                      ((or (string= "t" (substring command 0 1))
+                           (string= "title" (substring command 0 1)))
                        "b.title")
                       )))
           (calibre-query-by-field wherefield argstring))
       (format "WHERE lower(b.author_sort) LIKE '\\''%%%s%%'\\'' OR lower(b.title) LIKE '\\''%%%s%%'\\''"
               (downcase search-string) (downcase search-string)))))
 
+(defun calibre-read-query-filter-command ()
+  "a:<author_name> | t:<title_name> | <author_or_title>"
+  (let* ((default-string (if mark-active (calibre-chomp (buffer-substring (mark) (point)))))
+         ;; prompt &optional initial keymap read history default
+         (search-string (read-string (format "search string[ %s ]: "
+                                             (if default-string
+                                                 default-string
+                                               "a:<author_name> | t:<title_name> | <author_or_title>"))
+                                     nil nil default-string)))
+    (calibre-parse-query-string search-string)))
+
 (defun quote-% (str)
   (replace-regexp-in-string "%" "%%" str))
 
-(defun calibre-list ()
-  (interactive)
-  (message (quote-% (calibre-query
-            (concat "SELECT b.path FROM books AS b "
-                    (calibre-read-query-filter-command))))))
-
-(defun calibre-get-cached-pdf-text (pdf-filepath)
-  (let ((found-text (shell-command-to-string
-                     (format "%s -separator '\t' '%s' 'SELECT content FROM pdftext WHERE filepath = '%s'" sql-sqlite-program calibre-text-cache-db pdf-filepath))))
-    (if (< 0 (length found-text))
-        found-text
-      (let ((text-extract (shell-command-to-string
-                           (format "pdftotext '%s' -" pdf-filepath))))
-        (message "supposed to insert this!")
-        ))))
-
-(defun calibre-open-citekey ()
-  (interactive)
-  (if (word-at-point)
-      (let ((where-string
-             (replace-regexp-in-string
-              ;; capture all up to optional "etal" into group \1
-              ;; capture 4 digits of date          into group \2
-              ;; capture first word in title       into group \3
-              "\\b\\([^ :;,.]+?\\)\\(?:etal\\)?\\([[:digit:]]\\\{4\\\}\\)\\(.*?\\)\\b"
-              "WHERE lower(b.author_sort) LIKE '\\\\''%\\1%'\\\\'' AND lower(b.title) LIKE '\\\\''\\3%'\\\\''AND b.pubdate >= '\\\\''\\2-01-01'\\\\'' AND b.pubdate <= '\\\\''\\2-12-31'\\\\'' LIMIT 1" (word-at-point))))
-        (mark-word)
-        (calibre-find (calibre-build-default-query where-string)))
-    (message "nothing at point!")))
-
 (defun getattr (my-alist key)
   (cadr (assoc key my-alist)))
-
-(defun calibre-make-citekey (calibre-res-alist)
-  "return some kind of a unique citation key for BibTeX use"
-  (let* ((stopword-list '("the" "on" "a"))
-         (spl (split-string (calibre-chomp (getattr calibre-res-alist :author-sort)) "&"))
-         (first-author-lastname (first (split-string (first spl) ",")))
-         (first-useful-word-in-title
-          ;; ref fitlering in http://www.emacswiki.org/emacs/ElispCookbook#toc39
-          (first (delq nil
-                  (mapcar
-                   (lambda (token) (if (member token stopword-list) nil token))
-                   (split-string (downcase (getattr calibre-res-alist :book-title)) " "))))))
-    (concat
-     (downcase (replace-regexp-in-string  "\\W" "" first-author-lastname))
-     (if (< 1 (length spl)) "etal" "")
-     (substring (getattr calibre-res-alist :book-pubdate) 0 4)
-     (downcase (replace-regexp-in-string  "\\W.*" "" first-useful-word-in-title)))))
 
 (defun mark-aware-copy-insert (content)
   "copy to clipboard if mark active, else insert"
@@ -178,7 +121,8 @@
 
 ;; define the result handlers here in the form of (hotkey description handler-function)
 ;; where handler-function takes 1 alist argument containing the result record
-(setq calibre-handler-alist '(("o" "open"
+(defvar calibre-handler-alist
+  '(("o" "open"
                                (lambda (res) (find-file-other-window (getattr res :file-path))))
                               ("O" "open other frame"
                                (lambda (res) (find-file-other-frame (getattr res :file-path))))
@@ -193,8 +137,6 @@
                                                                 (getattr res :file-path))))))
                               ("s" "insert calibre search string"
                                (lambda (res) (mark-aware-copy-insert (concat "title:\"" (getattr res :book-title) "\""))))
-                              ("c" "insert citekey"
-                               (lambda (res) (mark-aware-copy-insert (calibre-make-citekey res))))
                               ("i" "get book information (SELECT IN NEXT MENU) and insert"
                                (lambda (res)
                                  (let ((opr (char-to-string (read-char
@@ -206,17 +148,17 @@
                                    (cond ((string= "i" opr)
                                           ;; stupidly just insert the plain text result
                                           (mark-aware-copy-insert
-                                                   (calibre-chomp
-                                                    (calibre-query (concat "SELECT "
-                                                                           "idf.type, idf.val "
-                                                                           "FROM identifiers AS idf "
-                                                                           (format "WHERE book = %s" (getattr res :id)))))))
+                                           (calibre-chomp
+                                            (calibre-query (concat "SELECT "
+                                                                   "idf.type, idf.val "
+                                                                   "FROM identifiers AS idf "
+                                                                   (format "WHERE book = %s" (getattr res :id)))))))
                                          ((string= "d" opr)
                                           (mark-aware-copy-insert
-                                                   (substring (getattr res :book-pubdate) 0 10)))
+                                           (substring (getattr res :book-pubdate) 0 10)))
                                          ((string= "a" opr)
                                           (mark-aware-copy-insert
-                                                   (calibre-chomp (getattr res :author-sort))))
+                                           (calibre-chomp (getattr res :author-sort))))
                                          (t
                                           (deactivate-mark)
                                           (message "cancelled"))))
@@ -228,14 +170,6 @@
                                (lambda (res) (mark-aware-copy-insert (getattr res :book-title))))
                               ("j" "insert entry json"
                                (lambda (res) (mark-aware-copy-insert (json-encode res))))
-                              ("X" "open as plaintext in new buffer (via pdftotext)"
-                               (lambda (res)
-                                 (let* ((citekey (calibre-make-citekey res)))
-                                   (let* ((pdftotext-out-buffer (get-buffer-create (format "pdftotext-extract-%s" (getattr res :id)))))
-                                     (set-buffer pdftotext-out-buffer)
-                                     (insert (shell-command-to-string (concat "pdftotext '" (getattr res :file-path) "' -")))
-                                     (switch-to-buffer-other-window pdftotext-out-buffer)
-                                     (beginning-of-buffer)))))
                               ("q" "(or anything else) to cancel"
                                (lambda (res)
                                  (deactivate-mark)
@@ -271,17 +205,16 @@
            (read-char
             ;; render menu text here
             (let ((num-result (length calibre-item-list)))
-              (concat (format "%d matches for '%s'. pick target format?\n"
-                              num-result
-                              (getattr (car calibre-item-list) :book-title))
+              (concat (format "%d matches, choose one\n" num-result)
+                      ;; (getattr (car calibre-item-list) :book-title)
                       (mapconcat #'(lambda (idx)
                                      (let ((item (nth idx calibre-item-list)))
                                        (format "   (%s) %s"
                                                (1+ idx)
-                                               (getattr item :book-format))))
+                                               (getattr item :book-title))))
                                  (number-sequence 0 (1- num-result))
                                  "\n"))))))
-         (chosen-item (nth (1- (string-to-int chosen-number)) calibre-item-list)))
+         (chosen-item (nth (1- (string-to-number chosen-number)) calibre-item-list)))
     (calibre-file-interaction-menu chosen-item)))
 
 (defun calibre-find (&optional custom-query)
@@ -290,7 +223,9 @@
                         custom-query
                       (calibre-build-default-query (calibre-read-query-filter-command))))
          (query-result (calibre-query sql-query))
-         (line-list (split-string (calibre-chomp query-result) "\n"))
+         (line-list (if (string= query-result "")
+                        '()
+                      (split-string (calibre-chomp query-result) "\n")))
          (num-result (length line-list)))
     (if (= 0 num-result)
         (progn
@@ -301,6 +236,6 @@
             (calibre-file-interaction-menu (car res-list))
           (calibre-format-selector-menu res-list))))))
 
-(global-set-key "\C-cK" 'calibre-open-citekey)
+(global-set-key "\C-cC" 'calibre-find)
 
 (provide 'calibre-mode)

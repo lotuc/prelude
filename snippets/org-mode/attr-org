@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: ORG_ATTR
+# key: ao
+# --
+
+#+ATTR_ORG: $0

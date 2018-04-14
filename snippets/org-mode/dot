@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: dot
+# key: dot
+# --
+
+#+BEGIN_SRC dot :file data/img/$1.png :cmdline -Kdot -Tpng :exports both :cache yes
+$0
+#+END_SRC

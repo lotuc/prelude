@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: org-mode-source-typescript
+# key: <st
+# --
+#+BEGIN_SRC typescript
+$0
+#+END_SRC

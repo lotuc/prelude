@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: leetcode java
+# key: <lj
+# --
+
+#+BEGIN_SRC java :classname Solution
+class Solution {
+    public static void main(String[] args) {
+       new Solution();
+    }
+
+$0
+}
+#+END_SRC

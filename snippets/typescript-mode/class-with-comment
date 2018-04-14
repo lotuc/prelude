@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: class definition with comment
+# key: cc
+# --
+/**
+ * $2
+ */
+class $1 {
+  $0
+}

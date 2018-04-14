@@ -11,16 +11,14 @@
                "<!--"
                sgml-skip-tag-forward
                nil))
+
 (add-hook 'nxml-mode-hook
           (lambda ()
             (pangu-spacing-mode -1)
             (flycheck-mode -1)
             (projectile-mode -1)
-            (whitespace-mode -1)
-            ;; (font-lock-mode -1)
-            (lotuc-xml-read-only)))
+            (whitespace-mode -1)))
 
-;;;###autoload
 (defun lotuc-xml-read-only ()
   "readonly on nxml-mode"
   (interactive)

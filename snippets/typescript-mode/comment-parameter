@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: parameter comment
+# key: @p
+# --
+* @param $0

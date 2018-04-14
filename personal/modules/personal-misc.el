@@ -1,14 +1,44 @@
 (prelude-require-packages '(multiple-cursors
                             org-plus-contrib
-                            magit
                             elfeed
                             elfeed-org
                             docker
-                            w3m))
+                            w3m
+                            yasnippet-snippets
+                            magithub
+                            pdf-tools
+                            auto-complete))
 (require 'whitespace)
 (require 'multiple-cursors)
 (require 'elfeed)
 (require 'magit)
+(require 'pdf-tools)
+
+(pdf-tools-install)
+
+(defvar xsdvi-path (expand-file-name "~/.emacs.d/personal/java/xsdvi/xsdvi.jar"))
+(defun lotuc-trans-xsd-to-svg (in-xsd-file out-svg-file)
+  (interactive
+   (list (read-file-name "XSD:")
+         (expand-file-name (read-string "SVG Filename:")
+                           (read-directory-name "Output Directory:"))))
+  (let* ((out-dir
+          (expand-file-name (make-temp-name "xsdvi") temporary-file-directory))
+         (out-file-name
+          (expand-file-name (format "%s.svg" (file-name-base in-xsd-file))
+                            out-dir))
+         (cmd (format "cd \"%s\" && java -jar \"%s\" \"%s\""
+                      out-dir
+                      (expand-file-name xsdvi-path)
+                      (expand-file-name in-xsd-file))))
+    (if (file-exists-p out-svg-file)
+        (format "File already exists: %s" out-svg-file)
+      (progn
+        (make-directory out-dir)
+        (if (and (equal (shell-command cmd "*xsdvi*") 0)
+                 (file-exists-p out-file-name))
+            (and (copy-file out-file-name out-svg-file) out-svg-file)
+          (message (format "export xsd %s to svg %s" in-xsd-file out-svg-file)))))))
 
 (defun lotuc-kill-other-buffers ()
   "Kill *all* other buffers, including special buffers.
@@ -70,68 +100,13 @@ crux-kill-other-buffers 'Doesn't mess with special buffers', we kill all others"
 (add-hook 'gfm-mode-hook 'turn-off-whitespace-hook)
 (add-hook 'elfeed-show-mode-hook 'turn-off-whitespace-hook)
 
-(defun list-git-repo-in-directory-recursively (dir dep)
-  "find git repo under directory recursively with within the depth"
-  (defun is-git-repo (d)
-    "silly function check if the directory is a git repo"
-    (file-directory-p (expand-file-name ".git" d)))
-  (defun helper (dir dep)
-    "the real finding function"
-    (if (< dep 1)
-        '()
-      (let* ((file-list (seq-map (lambda (n) (expand-file-name n dir))
-                                 (seq-filter (lambda (n)
-                                               (not (or (equal n ".")
-                                                        (equal n "..")
-                                                        (equal n ".git"))))
-                                             (directory-files dir))))
-             (sub-dir-list (seq-filter #'file-directory-p file-list))
-             ;; Git Repo at child of *dir*
-             (child-repo-list
-              (seq-filter #'is-git-repo sub-dir-list))
-             (sub-not-repo-dir-list (seq-filter
-                                     (lambda (d) (not (is-git-repo d)))
-                                     sub-dir-list))
-             ;; Git Repo at child of child dir and their child's and so on
-             (grand-repo-list
-              (apply #'append
-                     (seq-map (lambda (d) (helper d (- dep 1)))
-                              sub-not-repo-dir-list))))
-        (append child-repo-list grand-repo-list))))
-  (helper dir dep))
-
-(defun lotuc-magit ()
-  "quick magit on repos under my workspace"
-  (interactive)
-  (let ((repo (completing-read
-               "Repo: "
-               (append
-                '("~/.emacs.d")
-                (list-git-repo-in-directory-recursively "~/Workspace/" 5)))))
-    (magit-status-internal repo)))
-
+;; https://magit.vc/manual/magit/Performance.html
+(setq magit-refresh-status-buffer nil)
 
 (setq line-number-display-limit large-file-warning-threshold)
 (setq line-number-display-limit-width 200)
 (defun my--is-file-large ()
   "If buffer too large and my cause performance issue."
   (< large-file-warning-threshold (buffer-size)))
-
-(define-derived-mode my-large-file-mode fundamental-mode "LargeFile"
-  "Fixes performance issues in Emacs for large files."
-  ;; (setq buffer-read-only t)
-  (setq bidi-display-reordering nil)
-  (jit-lock-mode nil)
-  (buffer-disable-undo)
-  (set (make-variable-buffer-local 'global-hl-line-mode) nil)
-  (set (make-variable-buffer-local 'line-number-mode) nil)
-  (set (make-variable-buffer-local 'column-number-mode) nil) )
-
-(add-to-list 'magic-mode-alist (cons #'my--is-file-large #'my-large-file-mode))
-
-;; (add-hook 'find-file-hook
-;;           (when (> (buffer-size) (* 1024 1024))
-;;             (setq buffer-read-only t)
-;;             (buffer-disable-undo)))
 
 (provide 'personal-misc)

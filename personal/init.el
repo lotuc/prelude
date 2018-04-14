@@ -1,6 +1,7 @@
-(add-to-list 'load-path (expand-file-name "modules" prelude-personal-dir))
+(defconst personal-modules (expand-file-name "modules" prelude-personal-dir))
+(add-to-list 'load-path personal-modules)
+(add-to-list 'load-path (expand-file-name "lilypond" personal-modules))
 
-(require 'personal-private)
 (require 'personal-eshell)
 (require 'personal-font)
 (require 'personal-osx)
@@ -10,7 +11,22 @@
 (require 'personal-rust)
 (require 'personal-org)
 (require 'personal-ts)
+(require 'personal-blog)
+(require 'personal-python)
+(require 'personal-lilypond)
 (require 'calibre-mode)
+(require 'personal-go)
+(require 'personal-json)
+(require 'personal-haskell)
+(require 'personal-reason)
 
+(setq org-default-notes-file "~/Workspace/org/refile.org")
 (setq calibre-root-dir (expand-file-name "~/Calibre Library/Library"))
 (setq calibre-db (concat calibre-root-dir "/metadata.db"))
+(setq bbdb-file "~/.emacs.d/personal/private/bbdb")
+
+;; Load private settings
+(let* ((private-dir (expand-file-name "private" prelude-personal-dir))
+       (private-setting (expand-file-name "init.el" private-dir)))
+  (when (file-exists-p private-setting)
+    (load-file private-setting)))
