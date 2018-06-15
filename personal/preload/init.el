@@ -26,6 +26,12 @@
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 (setq scroll-step 1) ;; keyboard scroll one line at a time
 (toggle-scroll-bar -1)
+(defun disable-scroll-bars (frame)
+  (modify-frame-parameters frame
+                           '((vertical-scroll-bars . nil)
+                             (horizontal-scroll-bars . nil))))
+(add-hook 'after-make-frame-functions 'disable-scroll-bars)
+
 
 ;; jump when cursor moves out of screen
 (setq scroll-conservatively 101)
@@ -33,5 +39,9 @@
 
 (setq inhibit-startup-screen t
       initial-scratch-message "" make-backup-files nil)
+
+;; https://github.com/bbatsov/solarized-emacs/issues/143
+(setq solarized-use-variable-pitch nil)
+(setq solarized-scale-org-headlines nil)
 
 (server-start)

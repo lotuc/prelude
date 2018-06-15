@@ -7,7 +7,8 @@
                             yasnippet-snippets
                             magithub
                             pdf-tools
-                            auto-complete))
+                            auto-complete
+                            protobuf-mode))
 (require 'whitespace)
 (require 'multiple-cursors)
 (require 'elfeed)
@@ -15,6 +16,8 @@
 (require 'pdf-tools)
 
 (pdf-tools-install)
+
+(setq w3m-default-display-inline-images t)
 
 (defvar xsdvi-path (expand-file-name "~/.emacs.d/personal/java/xsdvi/xsdvi.jar"))
 (defun lotuc-trans-xsd-to-svg (in-xsd-file out-svg-file)

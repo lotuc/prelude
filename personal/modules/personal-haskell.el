@@ -1,12 +1,15 @@
-(prelude-require-packages '(intero shm))
+(prelude-require-packages '(intero
+                            ;; shm
+                            ))
 
 (eval-after-load 'haskell-mode
   '(progn
      (defun prelude-haskell-mode-defaults ()
-       (require 'shm)
+       ;; (require 'shm)
        (subword-mode +1)
        (intero-mode +1)
-       (structured-haskell-mode 1))
+       ;; (structured-haskell-mode 1)
+       )
 
      (setq prelude-haskell-mode-hook 'prelude-haskell-mode-defaults)
 

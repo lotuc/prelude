@@ -630,8 +630,7 @@ Skip project and sub-project tasks, habits, and project related tasks."
   (interactive)
   (if org-agenda-sticky
       (switch-to-buffer "*Org Agenda( )*")
-    (switch-to-buffer "*Org Agenda*"))
-  (delete-other-windows))
+    (switch-to-buffer "*Org Agenda*")))
 
 (defun bh/narrow-to-org-subtree ()
   (widen)

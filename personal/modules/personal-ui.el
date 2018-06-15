@@ -9,7 +9,7 @@
 (require 'yasnippet)
 (require 'prelude-helm-everywhere)
 
-(global-set-key [f8] 'treemacs-toggle)
+(global-set-key [f8] 'treemacs)
 (setq treemacs-no-png-images t)
 (treemacs-git-mode 'simple)
 (yas-global-mode 1)
