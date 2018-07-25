@@ -1,6 +1,7 @@
 (defconst personal-modules (expand-file-name "modules" prelude-personal-dir))
 (add-to-list 'load-path personal-modules)
 (add-to-list 'load-path (expand-file-name "lilypond" personal-modules))
+(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 
 (require 'personal-eshell)
 (require 'personal-font)
@@ -19,6 +20,8 @@
 (require 'personal-json)
 (require 'personal-haskell)
 (require 'personal-reason)
+(require 'personal-purescript)
+(require 'personal-sql)
 
 (setq org-default-notes-file "~/Workspace/org/refile.org")
 (setq calibre-root-dir (expand-file-name "~/Calibre Library/Library"))

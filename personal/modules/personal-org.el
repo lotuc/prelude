@@ -1,4 +1,5 @@
 (prelude-require-packages '(org-plus-contrib
+                            org-pomodoro
                             htmlize
                             ob-http
                             bbdb
@@ -7,6 +8,7 @@
                             org-attach-screenshot
                             ox-hugo))
 (require 'org)
+(require 'org-pomodoro)
 (require 'org-capture)
 (require 'ox-latex)
 (require 'org-habit)
@@ -87,6 +89,7 @@
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key (kbd "<f11>") 'org-clock-goto)
 (global-set-key (kbd "C-<f11>") 'org-clock-in)
+(global-set-key (kbd "C-<f12>") 'org-pomodoro)
 (global-set-key (kbd "<f9> I") 'bh/punch-in)
 (global-set-key (kbd "<f9> O") 'bh/punch-out)
 (global-set-key (kbd "<f9> v") 'org-toggle-inline-images)
