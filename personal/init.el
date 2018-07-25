@@ -1,4 +1,5 @@
 (defconst personal-modules (expand-file-name "modules" prelude-personal-dir))
+(prelude-require-packages '(scribble-mode))
 (add-to-list 'load-path personal-modules)
 (add-to-list 'load-path (expand-file-name "lilypond" personal-modules))
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))

@@ -1,5 +1,8 @@
 (require 'package)
-(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                         ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
+                         ;; ("org" . "https://orgmode.org/elpa/")
+                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
 (prefer-coding-system 'utf-8)
 (set-charset-priority 'unicode)
