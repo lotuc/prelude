@@ -1,29 +1,21 @@
 (prelude-require-packages '(lsp-mode
                             lsp-python
-                            ;; python-docstring
-                            ;; py-autopep8
-                            ))
-(require 'prelude-programming)
+                            pipenv
+                            pyvenv))
+
+;; (require 'prelude-programming)
 (require 'lsp-mode)
 (require 'lsp-python)
 (require 'eshell)
 (require 'pipenv)
-;; (require 'py-autopep8)
 
 ;; https://github.com/palantir/python-language-server
 ;; pip install 'python-language-server[all]'
 
-;; (defun personal-python-mode-hook ()  ;; C-c M-d
-;;   ;; (require 'python-docstring)
-;;   ;; (python-docstring-mode 1)
-;;   ;; (py-autopep8-enable-on-save)
-;;   (pipenv-mode)
-;;   ;; (anaconda-eldoc-mode)
-;;   (lsp-python-enable)
-;;   (setq python-shell-interpreter "ipython")
-;;   (setq-local pipenv-projectile-after-switch-function
-;;               #'pipenv-projectile-after-switch-extended)
-;;   )
+;; projectile
+(lsp-define-stdio-client lsp-python "python"
+                         #'projectile-project-root
+                         '("pyls"))
 
 ;; pipenv
 (add-hook 'eshell-mode-hook
@@ -49,20 +41,18 @@
     (if path
         (progn (let ((venv-pylint (concat path "bin/pylint")))
                  (if (file-exists-p venv-pylint)
-                     (flycheck-set-checker-executable 'python-pylint venv-pylint)))
-               (pythonic-activate path)
+                     (flycheck-set-checker-executable
+                      'python-pylint venv-pylint)))
                (pyvenv-activate path)
-               (message path))
-      (lsp-restart-workspace)
+               (message path)
+               (lsp-restart-workspace))
       (message "venv not found"))))
 
 (defun unset-virtualenv-dir ()
   (interactive)
-  (pythonic-deactivate)
   (pyvenv-deactivate))
 
 ;; ============== FROM prelude-python ===============
-;; Copy pasted from ruby-mode.el
 (defun prelude-python--encoding-comment-required-p ()
   (re-search-forward "[^\0-\177]" nil t))
 
@@ -83,10 +73,8 @@
 (defun prelude-python-mode-set-encoding ()
   "Insert a magic comment header with the proper encoding if necessary."
   (save-excursion
-    ;; lsp format
     (widen)
     (goto-char (point-min))
-    (lsp-format-buffer)
     (when (prelude-python--encoding-comment-required-p)
       (goto-char (point-min))
       (let ((coding-system (prelude-python--detect-encoding)))
@@ -103,13 +91,23 @@
           (when (buffer-modified-p)
             (basic-save-buffer-1)))))))
 
+(defun personal-python-save-hook ()
+  (interactive)
+  (prelude-python-mode-set-encoding)
+  (lsp-format-buffer))
+
 (when (fboundp 'exec-path-from-shell-copy-env)
   (exec-path-from-shell-copy-env "PYTHONPATH"))
 
 (defun prelude-python-mode-defaults ()
   "Defaults for Python programming."
+
+  (if (not pyvenv-virtual-env)
+      (set-virtualenv-dir "."))
+  (if pyvenv-virtual-env
+      (setenv "VIRTUAL_ENV" pyvenv-virtual-env))
+
   (subword-mode +1)
-  ;; (anaconda-mode 1)
   (eldoc-mode 1)
   (setq-local electric-layout-rules
               '((?: . (lambda ()
@@ -121,19 +119,16 @@
                 #'python-imenu-create-flat-index))
   (add-hook 'post-self-insert-hook
             #'electric-layout-post-self-insert-function nil 'local)
-  (add-hook 'after-save-hook 'prelude-python-mode-set-encoding nil 'local)
-
+  (add-hook 'after-save-hook 'personal-python-save-hook nil 'local)
   (pipenv-mode)
   (lsp-python-enable)
   (setq python-shell-interpreter "ipython")
   (setq-local pipenv-projectile-after-switch-function
-              #'pipenv-projectile-after-switch-extended)
-  )
+              #'pipenv-projectile-after-switch-extended))
 
 (setq prelude-python-mode-hook 'prelude-python-mode-defaults)
 
 (add-hook 'python-mode-hook (lambda ()
                               (run-hooks 'prelude-python-mode-hook)))
-;; ============== END prelude-python ===============
 
 (provide 'personal-python)

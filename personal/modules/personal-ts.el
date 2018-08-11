@@ -1,59 +1,42 @@
-(prelude-require-packages '(tide
+(prelude-require-packages '(lsp-mode
+                            lsp-javascript-typescript
                             typescript-mode
-                            web-mode
-                            company
-                            prettier-js
-                            add-node-modules-path))
-
-(require 'web-mode)
-(require 'typescript-mode)
+                            prettier-js))
+(require 'prelude-programming)
 (require 'company)
-(require 'flycheck)
-(require 'tide)
 (require 'prettier-js)
+(require 'lsp-javascript-typescript)
 
-(defun setup-tide-mode ()
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  (company-mode +1)
-  ;; 该路径使相对项目根目录的
-  (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver")
-  ;; (add-hook 'before-save-hook 'tide-format-before-save)
-  (setq company-tooltip-align-annotations t)
-  (setq company-idle-delay 0)
-  (local-set-key (kbd "C-M-i") 'completion-at-point))
+(defun personal-js-ts-defaults ()
+  (setq typescript-indent-level 2)
+  (setq js-indent-level 2)
+  (setq prettier-js-args '(
+                           "--single-quote"
+                           "--trailing-comma" "none"
+                           "--bracket-spacing" "true"))
+  (lsp-javascript-typescript-enable)
+  ;; The prettier is pretty slow :(
+  ;; (add-hook 'after-save-hook 'prettier-js nil 'local)
+  )
 
-(setq prettier-js-args '("--single-quote"
-                         "--trailing-comma" "all"
-                         "--bracket-spacing" "false"))
+(defun personal-css-defaults ()
+  (add-hook 'after-save-hook 'prettier-js nil 'local))
 
-(add-hook 'typescript-mode-hook
-          (lambda ()
-            (setup-tide-mode)
-            (prettier-js-mode)
-            (hs-minor-mode 1)
-            (setq typescript-indent-level 2)))
+(add-hook 'js-mode-hook 'personal-js-ts-defaults)
+(add-hook 'typescript-mode-hook 'personal-js-ts-defaults)
+(add-hook 'js3-mode-hook 'personal-js-ts-defaults)
+(add-hook 'rjsx-mode 'personal-js-ts-defaults)
+(eval-after-load 'js-mode
+  '(progn
+     (defun my-company-transformer (candidates)
+       (let ((completion-ignore-case t))
+         (all-completions (company-grab-symbol) candidates)))
+     (defun my-js-hook nil
+       (make-local-variable 'company-transformers)
+       (push 'my-company-transformer company-transformers))
+     (add-hook 'js-mode-hook 'my-js-hook)))
 
-(defun enable-minor-mode (my-pair)
-  "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
-  (if (buffer-file-name)
-      (if (string-match (car my-pair) buffer-file-name)
-          (funcall (cdr my-pair)))))
-
-(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-(add-hook 'web-mode-hook
-          (lambda ()
-            (add-node-modules-path)
-            (when (string-equal "tsx" (file-name-extension buffer-file-name))
-              (prettier-js-mode)
-              (setup-tide-mode)
-              (flycheck-add-mode 'typescript-tslint 'web-mode)
-              (setq web-mode-markup-indent-offset 2)
-              (setq web-mode-code-indent-offset 2)
-              (setq web-mode-css-indent-offset 2))))
+(add-hook 'css-mode-hook 'personal-css-defaults)
+(add-hook 'scss-mode-hook 'personal-css-defaults)
 
 (provide 'personal-ts)

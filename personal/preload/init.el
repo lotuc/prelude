@@ -1,12 +1,12 @@
 (require 'package)
-;; (setq package-archives '(
-;;                          ;; ("gnu"   . "http://elpa.emacs-china.org/gnu/")
-;;                          ;; ("melpa" . "http://elpa.emacs-china.org/melpa/")
-;;                          ;; ("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-;;                          ("melpa" . "https://melpa.org/packages/")
-;;                          ;; ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-;;                          ;; ("org" . "https://orgmode.org/elpa/")
-;;                          ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
+(setq package-archives '(
+                         ("gnu"   . "https://elpa.emacs-china.org/gnu/")
+                         ("melpa" . "https://elpa.emacs-china.org/melpa/")
+                         ;; ("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                         ;; ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+                         ;; ("melpa" . "https://melpa.org/packages/")
+                         ;; ("org" . "https://orgmode.org/elpa/")
+                         ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
 
 ;; https://blog.vifortech.com/posts/emacs-tls-fix/
 (require 'gnutls)
