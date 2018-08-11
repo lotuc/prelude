@@ -23,6 +23,7 @@
 (require 'personal-reason)
 (require 'personal-purescript)
 (require 'personal-sql)
+(require 'personal-lsp)
 
 (setq org-default-notes-file "~/Workspace/org/refile.org")
 (setq calibre-root-dir (expand-file-name "~/Calibre Library/Library"))

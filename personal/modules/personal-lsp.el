@@ -1,4 +1,6 @@
 (prelude-require-packages '(lsp-mode
+                            lsp-ui
+                            company-lsp
                             lsp-javascript-typescript))
 
 ;; (require 'lsp-mode)
@@ -15,5 +17,14 @@
 ;;           (lambda ()
 ;;             (when (string-equal "tsx" (file-name-extension buffer-file-name))
 ;;               (lsp-typescript-enable))))
+
+
+(require 'lsp-imenu)
+;; (require 'company-lsp)
+(add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
+;; (push 'company-lsp company-backends)
+
+(require 'lsp-ui)
+(add-hook 'lsp-mode-hook 'lsp-ui-mode)
 
 (provide 'personal-lsp)
