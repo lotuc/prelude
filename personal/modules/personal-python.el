@@ -3,7 +3,7 @@
                             pipenv
                             pyvenv))
 
-;; (require 'prelude-programming)
+(require 'prelude-programming)
 (require 'lsp-mode)
 (require 'lsp-python)
 (require 'eshell)
@@ -12,9 +12,20 @@
 ;; https://github.com/palantir/python-language-server
 ;; pip install 'python-language-server[all]'
 
+(defun find-python-project-root ()
+  (interactive)
+  (condition-case ex
+      (projectile-project-root)
+    ('error (let* ((name "setup.py\\|Pipfile\\|setup.cfg\\|tox.ini")
+                   (dir (locate-dominating-file "." name)))
+              (if dir (file-truename dir)
+                (progn
+	            (message "Couldn't find project root, using the current directory as the root.")
+                    default-directory))))))
+
 ;; projectile
 (lsp-define-stdio-client lsp-python "python"
-                         #'projectile-project-root
+                         #'find-python-project-root
                          '("pyls"))
 
 ;; pipenv
