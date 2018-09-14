@@ -24,166 +24,56 @@
 (require 'org-attach-screenshot)
 (require 'org-brain)
 
-(with-eval-after-load 'ox
-  (require 'ox-hugo))
+(with-eval-after-load 'ox (require 'ox-hugo))
 
-;;;; 截图程序配置
+;;;; Screen capturing program
 (when (equal system-type 'darwin)
   (setq org-attach-screenshot-command-line "screencapture -i %f"))
 
-(setq org-modules (quote (org-bbdb
-                          org-bibtex
-                          org-crypt
-                          org-gnus
-                          org-id
-                          org-info
-                          org-habit
-                          org-inlinetask
-                          org-irc
-                          org-mew
-                          org-mhe
-                          org-protocol
-                          org-rmail
-                          org-vm
-                          org-wl
-                          org-w3m)))
+(setq org-modules
+      '(org-bbdb
+        org-bibtex
+        org-crypt
+        org-gnus
+        org-id
+        org-info
+        org-habit
+        org-inlinetask
+        org-irc
+        org-mew
+        org-mhe
+        org-protocol
+        org-rmail
+        org-vm
+        org-wl
+        org-w3m))
 
-(add-hook 'org-mode-hook
-          (progn
-            (lambda ()
-              (dolist (face '(org-level-1
-                              org-level-2
-                              org-level-3
-                              org-level-4
-                              org-level-5))
-                (set-face-attribute face nil :weight 'semi-bold :height 1.0)))))
-
-;;;; 外部程序路径
-;; mac 可以使用 brew install plantuml 查看 which plantuml 获取 jar 文件，
-;; 软链接到目标路径
-;; ln -s <源jar文件> ~/.emacs.d/personal/plantuml.jar
-(let ((jar-dir (expand-file-name "java" prelude-personal-dir)))
-  (setq org-plantuml-jar-path
-        (expand-file-name "plantuml.jar" jar-dir))
-  (setq org-ditaa-jar-path
-        (expand-file-name "ditaa.jar" jar-dir)))
+;;;; Variables
+(defvar lotuc-jar-files-dir (expand-file-name "java" prelude-personal-dir)
+  "This directory houses all the jar files")
+(defvar org-plantuml-jar-path
+  (expand-file-name "plantuml.jar" lotuc-jar-files-dir))
+(defvar org-ditta-jar-path
+  (expand-file-name "ditaa.jar" lotuc-jar-files-dir))
+(defvar bh/hide-scheduled-and-waiting-next-tasks t)
 
 ;; Use fundamental mode when editing plantuml blocks with C-c '
 (add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
 
-;; Variables
-(defvar bh/hide-scheduled-and-waiting-next-tasks t)
-
 ;;;; Encrypt
-;; macos 上需要安装
 ;; - https://gpgtools.org/
 ;; - gnupg
-;; Encrypt all entries before saving
-;; (epa-file-enable)
 (org-crypt-use-before-save-magic)
 (setq org-tags-exclude-from-inheritance (quote ("crypt")))
 (setq org-crypt-disable-auto-save nil)
 ;; GPG key to use for encryption
 (setq org-crypt-key "936B445C")
 
-;;;; Keybindings
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cb" 'org-iswitchb)
-(global-set-key "\C-cc" 'org-capture)
-(global-set-key (kbd "<f11>") 'org-clock-goto)
-(global-set-key (kbd "C-<f11>") 'org-clock-in)
-(global-set-key (kbd "C-<f12>") 'org-pomodoro)
-(global-set-key (kbd "<f9> I") 'bh/punch-in)
-(global-set-key (kbd "<f9> O") 'bh/punch-out)
-(global-set-key (kbd "<f9> v") 'org-toggle-inline-images)
-(global-set-key (kbd "<f9> c") 'calendar)
-(global-set-key (kbd "<f9> l") 'org-toggle-link-display)
-(global-set-key (kbd "<f9> n") 'bh/toggle-next-task-display)
-(global-set-key (kbd "<f9> t") 'bh/insert-inactive-timestamp)
-
-(global-set-key (kbd "<f9> 1") 'org-attach-screenshot)
-(global-set-key (kbd "<f9> b") 'helm-bbdb)
-(global-set-key (kbd "<f9> 2") 'lotuc-insert-contact)
-(global-set-key (kbd "<f9> @") 'lotuc-insert-contact)
-(global-set-key (kbd "<f12>") 'bh/show-org-agenda)
-
-(defun lotuc/org-mode-bindkey ()
-  (progn
-    (local-set-key (kbd "C-c C-x i") 'lotuc-org-columns-insert-dblock)
-    (local-set-key (kbd "<f9> a") 'lotuc-org-attach-insert)))
-(add-hook 'org-mode-hook 'lotuc/org-mode-bindkey 'append)
-
-(defun lotuc-insert-contact ()
-  "Return name and company info for caller from bbdb lookup"
-  (interactive)
-  (progn
-    (let* (name rec caller)
-     (setq name (completing-read "Search: "
-                                 bbdb-hashtable
-                                 'bbdb-completion-predicate
-                                 'confirm))
-     (when (> (length name) 0)
-                                        ; Something was supplied - look it up in bbdb
-       (setq rec
-             (or (first
-                  (or (bbdb-search (bbdb-records) name nil nil)
-                      (bbdb-search (bbdb-records) nil name nil)))
-                 name)))
-
-                                        ; Build the bbdb link if we have a bbdb record, otherwise just return the name
-     (setq caller (cond ((and rec (vectorp rec))
-                         (let ((name (bbdb-record-name rec)))
-                           (concat "[[bbdb:"
-                                   name "]["
-                                   name "]]")))
-                        (rec)
-                        (t "NameOfCaller")))
-     (insert caller))))
-
-(defun lotuc-org-attach-insert ()
-  "Insert attach path at current point"
-  (interactive)
-  (let* ((attach-dir (org-attach-dir t))
-         (files (org-attach-file-list attach-dir))
-         (file (if (= (length files) 1)
-                   (car files)
-                 (completing-read "Open attachment: "
-                                  (mapcar #'list files) nil t)))
-         (path (expand-file-name file attach-dir)))
-    (org-attach-annex-get-maybe path)
-    (insert (concat
-             "[[file:"
-             (file-relative-name path default-directory)
-             "]]"))))
-
-(defun bh/insert-inactive-timestamp ()
-  (interactive)
-  (org-insert-time-stamp nil t t nil nil nil))
-
-(defun lotuc-org-columns-insert-dblock ()
-  "Copy from org-colview.el. difference is that we enable :indent by default"
-  (interactive)
-  (let ((id (completing-read
-             "Capture columns (local, global, entry with :ID: property) [local]: "
-             (append '(("local") ("global"))
-                     (mapcar #'list (org-property-values "ID"))))))
-    (org-create-dblock
-     (list :name "columnview"
-           :hlines 1
-           :indent 1
-           :id (cond ((string= id "global") 'global)
-                     ((member id '("" "local")) 'local)
-                     (id)))))
-  (org-update-dblock))
-
 ;;;; Settings
 ;; https://emacs.stackexchange.com/questions/14535/how-can-i-use-helm-with-org-refile
 (setq org-cycle-separator-lines 0)
 (setq org-outline-path-complete-in-steps nil)
-;; 使用 C-c ' 编辑时，不自动添加缩进
 (setq org-src-preserve-indentation t)
-;; babel 执行代码块时不提示是否确定
 (setq org-confirm-babel-evaluate nil)
 (setq org-use-fast-todo-selection t)
 (setq org-startup-indented t)
@@ -192,41 +82,24 @@
 (setq org-export-with-smart-quotes t)
 (setq org-cycle-include-plain-lists t)
 (setq org-hide-leading-stars t)
-(setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                 (org-agenda-files :maxlevel . 9))))
+(setq org-refile-targets '((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9)))
 ;; https://stackoverflow.com/questions/11670654/how-to-resize-images-in-org-mode
 (setq org-image-actual-width nil)
-;; Use full outline paths for refile targets
 (setq org-refile-use-outline-path t)
-;; Allow refile to create parent tasks with confirmation
 (setq org-refile-allow-creating-parent-nodes (quote confirm))
-;; Do not dim blocked tasks
 (setq org-agenda-dim-blocked-tasks nil)
-;; Compact the block agenda view
 (setq org-agenda-compact-blocks t)
-;; 启动时默认不内联显示图片
 (setq org-startup-with-inline-images nil)
-;; Resume clocking task when emacs is restarted
 (org-clock-persistence-insinuate)
-;; Show lot of clocking history so it's easy to pick items off the C-F11 list
 (setq org-clock-history-length 23)
-;; Resume clocking task on clock-in if the clock is open
 (setq org-clock-in-resume t)
-;; Change tasks to NEXT when clocking in
 (setq org-clock-in-switch-to-state 'bh/clock-in-to-next)
-;; Save clock data and state changes and notes in the LOGBOOK drawer
 (setq org-clock-into-drawer t)
-;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
 (setq org-clock-out-remove-zero-time-clocks t)
-;; Clock out when moving task to a done state
 (setq org-clock-out-when-done t)
-;; Save the running clock and all clock history when exiting Emacs, load it on startup
 (setq org-clock-persist t)
-;; Do not prompt to resume an active clock
 (setq org-clock-persist-query-resume nil)
-;; Enable auto clock resolution for finding open clocks
 (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
-;; Include current clocking task in clock reports
 (setq org-clock-report-include-clocking-task t)
 
 (setq org-latex-remove-logfiles t)
@@ -290,6 +163,29 @@
               ("b" "Brain" plain (function org-brain-goto-end)
                "* %i%?" :empty-lines 1))))
 
+;;;; Keybindings
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cb" 'org-iswitchb)
+(global-set-key "\C-cc" 'org-capture)
+(global-set-key (kbd "<f11>") 'org-clock-goto)
+(global-set-key (kbd "C-<f11>") 'org-clock-in)
+(global-set-key (kbd "C-<f12>") 'org-pomodoro)
+(global-set-key (kbd "<f9> I") 'bh/punch-in)
+(global-set-key (kbd "<f9> O") 'bh/punch-out)
+(global-set-key (kbd "<f9> v") 'org-toggle-inline-images)
+(global-set-key (kbd "<f9> c") 'calendar)
+(global-set-key (kbd "<f9> l") 'org-toggle-link-display)
+(global-set-key (kbd "<f9> n") 'bh/toggle-next-task-display)
+(global-set-key (kbd "<f9> t") 'bh/insert-inactive-timestamp)
+(global-set-key (kbd "<f9> 1") 'org-attach-screenshot)
+(global-set-key (kbd "<f9> b") 'helm-bbdb)
+(global-set-key (kbd "<f9> 2") 'lotuc/insert-contact)
+(global-set-key (kbd "<f9> @") 'lotuc/insert-contact)
+(global-set-key (kbd "<f12>") 'bh/show-org-agenda)
+
+
+
 (defun org-hugo-new-subtree-post-capture-template ()
   "Returns `org-capture' template string for new Hugo post.
 See `org-capture-templates' for more information."
@@ -303,6 +199,7 @@ See `org-capture-templates' for more information."
                  ":END:"
                  "%U\n%?")          ;Place the cursor here finally
                "\n")))
+
 (defun org-habit-capture-template ()
   (concat
    "* NEXT %?\n%U\n%a"
@@ -395,12 +292,14 @@ See `org-capture-templates' for more information."
                        (org-agenda-skip-function 'bh/skip-non-archivable-tasks)
                        (org-tags-match-list-sublevels nil))))
                nil))))
+
 (defun bh/org-auto-exclude-function (tag)
   "Agenda 执行 =/ RET= 时的默认过滤条件，执行 =//= 取消过滤"
   (and (cond
         ((string= tag "hold") t)
         ((string= tag "habit") t))
        (concat "-" tag)))
+
 (setq org-agenda-auto-exclude-function 'bh/org-auto-exclude-function)
 
 ;;;; babel
@@ -448,6 +347,40 @@ See `org-capture-templates' for more information."
                'paragraph-filter-delete-extra-space))
 
 ;;;; Functions
+
+(defun bh/insert-inactive-timestamp ()
+  (interactive)
+  (org-insert-time-stamp nil t t nil nil nil))
+
+(defun lotuc/org-attach-insert ()
+  "Insert attach path at current point"
+  (interactive)
+  (let* ((attach-dir (org-attach-dir t))
+         (files (org-attach-file-list attach-dir))
+         (file (if (= (length files) 1)
+                   (car files)
+                 (completing-read "Open attachment: "
+                                  (mapcar #'list files) nil t)))
+         (path (expand-file-name file attach-dir))
+         (file-path (file-relative-name path default-directory)))
+    (org-attach-annex-get-maybe path)
+    (insert (concat "[[file:" file-path "]]"))))
+
+(defun lotuc/org-columns-insert-dblock ()
+  "Copy from org-colview.el. difference is that we enable :indent by default"
+  (interactive)
+  (let ((id (completing-read
+             "Capture columns (local, global, entry with :ID: property) [local]: "
+             (append '(("local") ("global"))
+                     (mapcar #'list (org-property-values "ID"))))))
+    (org-create-dblock
+     (list :name "columnview"
+           :hlines 1
+           :indent 1
+           :id (cond ((string= id "global") 'global)
+                     ((member id '("" "local")) 'local)
+                     (id)))))
+  (org-update-dblock))
 
 ;; Agenda Functions
 (defun bh/toggle-next-task-display ()
@@ -602,12 +535,7 @@ Skip project and sub-project tasks, habits, and project related tasks."
                   nil))  ; available to archive
             (or subtree-end (point-max)))
         next-headline))))
-;; hooks
-(add-hook 'org-babel-after-execute-hook 'bh/display-inline-images 'append)
-(defun bh/display-inline-images ()
-  (condition-case nil
-      (org-display-inline-images)
-    (error nil)))
+
 
 ;;;; Speed commands
 (setq org-use-speed-commands t)
@@ -682,7 +610,6 @@ Skip project and sub-project tasks, habits, and project related tasks."
   (save-excursion
     (beginning-of-line 0)
     (org-remove-empty-drawer-at (point))))
-(add-hook 'org-clock-out-hook 'bh/remove-empty-drawer-on-clock-out 'append)
 
 
 (defun bh/punch-in (arg)
@@ -743,4 +670,25 @@ Switch projects and subprojects from NEXT back to TODO"
 (setq org-brain-visualize-default-choices 'all)
 (setq org-brain-title-max-length 12)
 
-(provide 'personal-org)
+;;;; Personal hooks
+(defun lotuc/org-mode-hook ()
+  (progn
+    (dolist (face '(org-level-1
+                    org-level-2
+                    org-level-3
+                    org-level-4
+                    org-level-5))
+      (set-face-attribute face nil :weight 'semi-bold :height 1.0))
+    (local-set-key (kbd "C-c C-x i") 'lotuc/org-columns-insert-dblock)
+    (local-set-key (kbd "<f9> a") 'lotuc/org-attach-insert)))
+
+(defun bh/display-inline-images ()
+  (condition-case nil
+      (org-display-inline-images)
+    (error nil)))
+
+(add-hook 'org-mode-hook 'lotuc/org-mode-hook)
+(add-hook 'org-babel-after-execute-hook 'bh/display-inline-images 'append)
+(add-hook 'org-clock-out-hook 'bh/remove-empty-drawer-on-clock-out 'append)
+
+(provide 'lotuc-org)

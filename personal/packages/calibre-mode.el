@@ -231,7 +231,7 @@
         (progn
           (message "nothing found.")
           (deactivate-mark))
-      (let ((res-list (mapcar '(lambda (line) (calibre-query-to-alist line)) line-list)))
+      (let ((res-list (mapcar #'(lambda (line) (calibre-query-to-alist line)) line-list)))
         (if (= 1 (length res-list))
             (calibre-file-interaction-menu (car res-list))
           (calibre-format-selector-menu res-list))))))

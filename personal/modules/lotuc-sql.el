@@ -4,4 +4,4 @@
 
 (add-hook 'sql-mode-hook (lambda () (sqlind-minor-mode)))
 
-(provide 'personal-sql)
+(provide 'lotuc-sql)

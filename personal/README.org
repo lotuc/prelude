@@ -1,0 +1,5 @@
+* Keymap
+** Global
+| Keybinding | Description                                                        |
+|------------+--------------------------------------------------------------------|
+| ~C-x M-m~  | Open eshell and goto current file's location (~lotuc/eshell-here~) |

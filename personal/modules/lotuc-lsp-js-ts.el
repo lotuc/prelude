@@ -10,10 +10,7 @@
 ;; (require 'lsp-javascript-typescript)
 (require 'lsp-typescript)
 
-;; (eval-after-load 'flycheck
-;;   '(add-hook 'flycheck-mode-hook #'flycheck-typescript-tslint-setup))
-
-(defun personal-js-ts-defaults ()
+(defun lotuc/js-ts-defaults ()
   ;; (lsp-javascript-typescript-enable)
 
   ;; typescript-language-server: dianostic-queue.js # updateDianostics
@@ -31,8 +28,6 @@
                            "--single-quote" "true"
                            "--trailing-comma" "none"
                            "--bracket-spacing" "true"))
-  ;; The prettier is pretty slow :(
-  ;; (add-hook 'after-save-hook 'prettier-js nil 'local)
 
   ;; lsp-ui flychecker is not usable for ts now
   ;; (let ((ext (file-name-extension buffer-file-name)))
@@ -51,26 +46,30 @@
             (let ((ext (file-name-extension buffer-file-name)))
               (when (or (string-equal "tsx" ext)
                         (string-equal "jsx" ext))
-                (personal-js-ts-defaults)))))
+                (lotuc/js-ts-defaults)))))
 
-(defun personal-css-defaults ()
+(defun lotuc/css-defaults ()
   (add-hook 'after-save-hook 'prettier-js nil 'local))
 
-(add-hook 'js2-mode-hook 'personal-js-ts-defaults)
-(add-hook 'typescript-mode-hook 'personal-js-ts-defaults)
-(add-hook 'js3-mode-hook 'personal-js-ts-defaults)
-(add-hook 'rjsx-mode 'personal-js-ts-defaults)
+(add-hook 'js2-mode-hook 'lotuc/js-ts-defaults)
+(add-hook 'typescript-mode-hook 'lotuc/js-ts-defaults)
+(add-hook 'js3-mode-hook 'lotuc/js-ts-defaults)
+(add-hook 'rjsx-mode 'lotuc/js-ts-defaults)
 (eval-after-load 'js-mode
   '(progn
      (defun my-company-transformer (candidates)
        (let ((completion-ignore-case t))
          (all-completions (company-grab-symbol) candidates)))
-     (defun my-js-hook nil
+     (defun my-js-hook ()
        (make-local-variable 'company-transformers)
        (push 'my-company-transformer company-transformers))
+     (defun my-json-hook ()
+       (make-local-variable 'js-indent-level)
+       (setq js-indent-level 2))
+     (add-hook 'json-mode-hook 'my-json-hook)
      (add-hook 'js-mode-hook 'my-js-hook)))
 
-(add-hook 'css-mode-hook 'personal-css-defaults)
-(add-hook 'scss-mode-hook 'personal-css-defaults)
+(add-hook 'css-mode-hook 'lotuc/css-defaults)
+(add-hook 'scss-mode-hook 'lotuc/css-defaults)
 
-(provide 'personal-ts)
+(provide 'lotuc-lsp-js-ts)

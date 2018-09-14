@@ -6,19 +6,16 @@
                             flatland-theme
                             neotree
                             all-the-icons
-                            ;; treemacs
                             spaceline
                             spaceline-all-the-icons
+                            multiple-cursors
+                            gruvbox-theme
                             ))
 (require 'yasnippet)
-(require 'prelude-helm-everywhere)
+(require 'multiple-cursors)
 (require 'spaceline-config)
 (require 'spaceline-all-the-icons)
-
-;; (require 'treemacs)
-;; (global-set-key [f8] 'treemacs)
-;; (setq treemacs-no-png-images t)
-;; (treemacs-git-mode 'simple)
+(require 'prelude-helm-everywhere)
 
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
@@ -28,9 +25,18 @@
 
 (spaceline-emacs-theme)
 (spaceline-helm-mode)
-;; (spaceline-all-the-icons-theme)
-;; (setq inhibit-compacting-font-caches t)
 
 (yas-global-mode 1)
 
-(provide 'personal-ui)
+(when (eq system-type 'darwin)
+  (progn
+    (setq mac-command-modifier 'meta)
+    (setq mac-option-modifier 'super)))
+
+;; multiple cursor
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C->") 'mc/edit-lines)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+(provide 'lotuc-ui)

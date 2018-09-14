@@ -34,4 +34,4 @@
 
 (setq merlin-ac-setup t)
 
-(provide 'personal-reason)
+(provide 'lotuc-reason)

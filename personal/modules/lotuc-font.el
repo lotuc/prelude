@@ -7,14 +7,13 @@
 ;; |abcdefghijklmnop|abcdefghijklmnopabcdefghijklmnopabcdefghijklmnop|
 
 (require 'pangu-spacing)
-;; (global-pangu-spacing-mode 1)
-(defun lotuc-pangu-enable-spacing ()
+
+(defun lotuc/pangu-enable-spacing ()
   "添加空白到文档，而不只是展示上的"
   (interactive)
   (set (make-local-variable 'pangu-spacing-real-insert-separtor) t))
-;; (add-hook 'org-mode-hook 'enable-pangu-spacing-hook)
 
-(defun lotuc-set-cn-kaiti (size &optional kaitisize)
+(defun lotuc/set-cn-kaiti (size &optional kaitisize)
   (interactive (list (read-number "size: " 12)
                      (read-number "kaitisize:" 0)))
   (when (not (equal system-type 'cygwin))
@@ -33,9 +32,9 @@
                                 (+ size 2)
                               kaitisize))))))))
 ;; 15 - 18
-(lotuc-set-cn-kaiti 12)
+(lotuc/set-cn-kaiti 12)
 
-(defun lotuc-set-cn-font-size (size)
+(defun lotuc/set-cn-font-size (size)
   "设置字体大小，仅在有 WenQuanYi Zen Hei Mono + Monaco 时有效"
   (interactive (list (read-number "size: ")))
   (when (not (equal system-type 'cygwin))
@@ -43,7 +42,7 @@
     (when (not (null (x-list-fonts "Monaco")))
       ;; Monaco
       (set-face-attribute 'default nil :font (format "Monaco %d" size))
-      ;; 中文使用WenQuanYi
+      ;; 中文使用 WenQuanYi
       (when (not (null (x-list-fonts "WenQuanYi Zen Hei Mono")))
         (dolist (charset '(kana han symbol cjk-misc bopomofo))
           (set-fontset-font
@@ -51,18 +50,4 @@
            charset
            (font-spec :family "WenQuanYi Zen Hei Mono" :size (+ size 2))))))))
 
-;; (create-fontset-from-fontset-spec
-;;  "-apple-Consolas-normal-normal-normal-*-13-*-*-*-m-0-fontset-mac")
-;; (add-to-list 'default-frame-alist '(font . "fontset-mac"))
-;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
-;;   (set-fontset-font "fontset-default" 'han "Kaiti SC"))
-;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
-;;   (set-fontset-font "fontset-mac" 'han "Kaiti SC"))
-
-;; (setq face-font-rescale-alist
-;;       '(
-;;         (".*Kaiti SC.*" . 1.1)
-;;         (".*Heiti SC.*" . 1.1)
-;;         ))
-
-(provide 'personal-font)
+(provide 'lotuc-font)

@@ -10,4 +10,4 @@
             (flycheck-mode)
             (turn-on-purescript-indentation)))
 
-(provide 'personal-purescript)
+(provide 'lotuc-purescript)

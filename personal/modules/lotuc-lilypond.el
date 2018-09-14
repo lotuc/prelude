@@ -3,4 +3,4 @@
 (add-to-list 'auto-mode-alist '("\\.ily$" . LilyPond-mode))
 (add-hook 'LilyPond-mode-hook (lambda () (turn-on-font-lock)))
 
-(provide 'personal-lilypond)
+(provide 'lotuc-lilypond)

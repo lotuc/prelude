@@ -7,6 +7,8 @@
 (require 'company-lsp)
 (require 'lsp-ui)
 
+;; dirty patch
+;; https://github.com/emacs-lsp/lsp-mode/issues/400
 (defun lsp-format-buffer ()
   "Ask the server to format this document."
   (interactive "*")
@@ -29,4 +31,4 @@
 (push 'company-lsp company-backends)
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
 
-(provide 'personal-lsp)
+(provide 'lotuc-lsp)

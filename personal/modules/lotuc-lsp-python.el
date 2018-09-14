@@ -26,17 +26,11 @@
         default-directory))))
 
 ;; projectile
-(lsp-define-stdio-client lsp-python "python"
-                         #'find-python-project-root
-                         '("pyls"))
-
-;; pipenv
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            (eshell/alias "pr" "pipenv run $*")
-            (eshell/alias "prp" "pipenv run python $*")))
+(lsp-define-stdio-client
+ lsp-python "python" #'find-python-project-root '("pyls"))
 
 (defun find-venv-path (path)
+  "Find .venv directory from path up to root"
   (if (file-exists-p (concat path "bin/python"))
       path
     (let ((f1 (locate-dominating-file path ".venv")))
@@ -44,12 +38,10 @@
       (if (and f1 (file-exists-p (concat f1 ".venv/bin/python")))
           (concat f1 ".venv")))))
 
-;; pythonic-activate RET / path/to/virtualenv 可用于指定虚拟环境
-(defun set-virtualenv-dir (path)
+(defun lotuc/set-virtualenv-dir (path)
   "Prompt user to enter the virtualenv directory."
   (interactive
-   (list
-    (read-file-name "Set virtualenv directory:")))
+   (list (read-file-name "Set virtualenv directory:")))
   (let ((path (find-venv-path (file-name-as-directory path))))
     (if path
         (progn (let ((venv-pylint (concat path "bin/pylint")))
@@ -61,7 +53,7 @@
                (lsp-restart-workspace))
       (message "venv not found"))))
 
-(defun unset-virtualenv-dir ()
+(defun lotuc/unset-virtualenv-dir ()
   (interactive)
   (pyvenv-deactivate))
 
@@ -139,7 +131,6 @@
 
 (setq prelude-python-mode-hook 'prelude-python-mode-defaults)
 
-(add-hook 'python-mode-hook (lambda ()
-                              (run-hooks 'prelude-python-mode-hook)))
+(add-hook 'python-mode-hook 'prelude-python-mode-defaults)
 
-(provide 'personal-python)
+(provide 'lotuc-lsp-python)

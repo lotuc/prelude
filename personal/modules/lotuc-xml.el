@@ -19,7 +19,7 @@
             (projectile-mode -1)
             (whitespace-mode -1)))
 
-(defun lotuc-xml-read-only ()
+(defun lotuc/xml-read-only ()
   "readonly on nxml-mode"
   (interactive)
   (when (derived-mode-p 'nxml-mode)
@@ -28,7 +28,7 @@
     (buffer-disable-undo)))
 
 ;;;###autoload
-(defun lotuc-xml-edit ()
+(defun lotuc/xml-edit ()
   "turn on editing on nxml-mode"
   (interactive)
   (when (derived-mode-p 'nxml-mode)
@@ -36,7 +36,7 @@
     (jit-lock-mode t)
     (buffer-enable-undo)))
 
-(defun lotuc-xml-format-region (begin end)
+(defun lotuc/xml-format-region (begin end)
   "Pretty format XML markup in region. You need to have nxml-mode
 http://www.emacswiki.org/cgi-bin/wiki/NxmlMode installed to do
 this.  The function inserts linebreaks to separate tags that have
@@ -53,4 +53,4 @@ by using nxml's indentation rules."
         (backward-char) (insert "\n"))
       (indent-region begin end))))
 
-(provide 'personal-xml)
+(provide 'lotuc-xml)
