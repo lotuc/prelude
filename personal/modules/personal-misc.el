@@ -14,6 +14,7 @@
 (require 'elfeed)
 (require 'magit)
 (require 'pdf-tools)
+(require 'cl)
 
 (pdf-tools-install)
 
@@ -50,6 +51,13 @@ crux-kill-other-buffers 'Doesn't mess with special buffers', we kill all others"
   (when (y-or-n-p
          "Are you sure you want to kill *all* buffers but the current one? ")
     (mapc 'kill-buffer (delq (current-buffer) (buffer-list)))))
+
+(defun lotuc-kill-matching-buffers (regexp)
+  "Kill buffers matching REGEXP without asking for confirmation."
+  (interactive "sKill buffers matching this regular expression: ")
+  (flet ((kill-buffer-ask (buffer) (kill-buffer buffer)))
+    (kill-matching-buffers regexp)))
+
 
 ;; https://github.com/bbatsov/prelude/issues/998
 (defun fix-c-a ()

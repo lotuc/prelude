@@ -6,7 +6,10 @@
                             bbdb-vcard
                             helm-bbdb
                             org-attach-screenshot
-                            ox-hugo))
+                            ox-hugo
+                            org-brain
+                            org-download
+                            helm-org-rifle))
 (require 'org)
 (require 'org-pomodoro)
 (require 'org-capture)
@@ -19,6 +22,7 @@
 (require 'org-crypt)
 (require 'epa-file)
 (require 'org-attach-screenshot)
+(require 'org-brain)
 
 (with-eval-after-load 'ox
   (require 'ox-hugo))
@@ -175,6 +179,7 @@
 
 ;;;; Settings
 ;; https://emacs.stackexchange.com/questions/14535/how-can-i-use-helm-with-org-refile
+(setq org-cycle-separator-lines 0)
 (setq org-outline-path-complete-in-steps nil)
 ;; 使用 C-c ' 编辑时，不自动添加缩进
 (setq org-src-preserve-indentation t)
@@ -281,7 +286,9 @@
                :clock-in t :clock-resume t)
               ("h" "Habit" entry (file org-default-notes-file)
                (function org-habit-capture-template)
-               :clock-in t :clock-resume t))))
+               :clock-in t :clock-resume t)
+              ("b" "Brain" plain (function org-brain-goto-end)
+               "* %i%?" :empty-lines 1))))
 
 (defun org-hugo-new-subtree-post-capture-template ()
   "Returns `org-capture' template string for new Hugo post.
@@ -731,5 +738,9 @@ Switch projects and subprojects from NEXT back to TODO"
 (setq org-global-properties
       (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
               ("STYLE_ALL" . "habit"))))
+
+;;;; org brain
+(setq org-brain-visualize-default-choices 'all)
+(setq org-brain-title-max-length 12)
 
 (provide 'personal-org)

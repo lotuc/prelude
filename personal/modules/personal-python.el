@@ -1,7 +1,8 @@
 (prelude-require-packages '(lsp-mode
                             lsp-python
                             pipenv
-                            pyvenv))
+                            pyvenv
+                            python-docstring))
 
 (require 'prelude-programming)
 (require 'lsp-mode)
@@ -11,17 +12,18 @@
 
 ;; https://github.com/palantir/python-language-server
 ;; pip install 'python-language-server[all]'
-
 (defun find-python-project-root ()
   (interactive)
-  (condition-case ex
-      (projectile-project-root)
-    ('error (let* ((name "setup.py\\|Pipfile\\|setup.cfg\\|tox.ini")
-                   (dir (locate-dominating-file "." name)))
-              (if dir (file-truename dir)
-                (progn
-	            (message "Couldn't find project root, using the current directory as the root.")
-                    default-directory))))))
+  (let* ((name #'(lambda (dir)
+                   (directory-files
+                    dir
+                    nil
+                    "setup.py\\|Pipfile\\|setup.cfg\\|.venv\\|tox.ini\\|.git")))
+         (dir (locate-dominating-file "." name)))
+    (if dir (file-truename dir)
+      (progn
+        (message "Couldn't find project root, using the current directory as the root.")
+        default-directory))))
 
 ;; projectile
 (lsp-define-stdio-client lsp-python "python"
@@ -112,14 +114,12 @@
 
 (defun prelude-python-mode-defaults ()
   "Defaults for Python programming."
-
-  (if (not pyvenv-virtual-env)
+  (if (not (getenv "VIRTUAL_ENV"))
       (set-virtualenv-dir "."))
-  (if pyvenv-virtual-env
-      (setenv "VIRTUAL_ENV" pyvenv-virtual-env))
 
   (subword-mode +1)
   (eldoc-mode 1)
+  (python-docstring-mode)
   (setq-local electric-layout-rules
               '((?: . (lambda ()
                         (and (zerop (first (syntax-ppss)))

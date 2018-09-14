@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: tsdnl
+# key: tsdnl
+# --
+// tslint:disable-next-line
