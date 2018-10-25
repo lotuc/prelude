@@ -7,11 +7,13 @@
                             pdf-tools
                             auto-complete
                             protobuf-mode
-                            scribble-mode))
+                            scribble-mode
+                            youdao-dictionary))
 
 (require 'magit)
 (require 'pdf-tools)
 (require 'calibre-mode)
+(require 'cl)
 
 ;; https://stackoverflow.com/questions/5019724/in-emacs-what-does-this-error-mean-warning-cl-package-required-at-runtime
 (eval-when-compile (require 'cl))
@@ -28,6 +30,9 @@
     (push `(prelude-mode . ,newmap) minor-mode-overriding-map-alist)))
 (add-hook 'eshell-mode-hook 'fix-c-a)
 (add-hook 'haskell-interactive-mode-hook 'fix-c-a)
+
+(global-set-key (kbd "\C-cq") 'youdao-dictionary-search-at-point+)
+(defalias 'youdao/search #'youdao-dictionary-search)
 
 ;; https://magit.vc/manual/magit/Performance.html
 (setq magit-refresh-status-buffer nil)
@@ -98,6 +103,12 @@ crux-kill-other-buffers 'Doesn't mess with special buffers', we kill all others"
   (interactive "sKill buffers matching this regular expression: ")
   (cl-flet ((kill-buffer-ask (buffer) (kill-buffer buffer)))
     (kill-matching-buffers regexp)))
+
+(defun lotuc/cleanup-buffers ()
+  (interactive)
+  (flet ((kill-buffer-ask (buffer) (kill-buffer buffer)))
+    (dolist (e '("*lsp" "magit" "*ag search"))
+      (kill-matching-buffers e))))
 
 (defun lotuc/open-in-external-app ()
   "Open the current file or dired marked files in external app.

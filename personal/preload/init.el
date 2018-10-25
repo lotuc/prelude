@@ -33,12 +33,11 @@
       ;; 'flatui
       ;; 'zenburn
       ;; 'dracula
-      ;; 'solarized-dark
-      nil)
+      'solarized-dark)
 ;; Solarized theme related
 ;; https://github.com/bbatsov/solarized-emacs/issues/143
-;; (setq solarized-use-variable-pitch nil)
-;; (setq solarized-scale-org-headlines nil)
+(setq solarized-use-variable-pitch nil)
+(setq solarized-scale-org-headlines nil)
 
 ;; https://blog.vifortech.com/posts/emacs-tls-fix/
 (require 'gnutls)

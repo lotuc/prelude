@@ -7,9 +7,10 @@
                             helm-bbdb
                             org-attach-screenshot
                             ox-hugo
-                            org-brain
                             org-download
                             helm-org-rifle))
+
+;; https://emacs.stackexchange.com/questions/30559/org-mode-inline-image-display-size
 (require 'org)
 (require 'org-pomodoro)
 (require 'org-capture)
@@ -22,7 +23,6 @@
 (require 'org-crypt)
 (require 'epa-file)
 (require 'org-attach-screenshot)
-(require 'org-brain)
 
 (with-eval-after-load 'ox (require 'ox-hugo))
 
@@ -71,12 +71,15 @@
 
 ;;;; Settings
 ;; https://emacs.stackexchange.com/questions/14535/how-can-i-use-helm-with-org-refile
+
+;; slow
+(setq org-startup-indented t)
+
 (setq org-cycle-separator-lines 0)
 (setq org-outline-path-complete-in-steps nil)
 (setq org-src-preserve-indentation t)
 (setq org-confirm-babel-evaluate nil)
 (setq org-use-fast-todo-selection t)
-(setq org-startup-indented t)
 (setq org-src-fontify-natively t)
 (setq org-src-tab-acts-natively t)
 (setq org-export-with-smart-quotes t)
@@ -159,9 +162,7 @@
                :clock-in t :clock-resume t)
               ("h" "Habit" entry (file org-default-notes-file)
                (function org-habit-capture-template)
-               :clock-in t :clock-resume t)
-              ("b" "Brain" plain (function org-brain-goto-end)
-               "* %i%?" :empty-lines 1))))
+               :clock-in t :clock-resume t))))
 
 ;;;; Keybindings
 (global-set-key "\C-cl" 'org-store-link)
@@ -666,10 +667,6 @@ Switch projects and subprojects from NEXT back to TODO"
       (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
               ("STYLE_ALL" . "habit"))))
 
-;;;; org brain
-(setq org-brain-visualize-default-choices 'all)
-(setq org-brain-title-max-length 12)
-
 ;;;; Personal hooks
 (defun lotuc/org-mode-hook ()
   (progn
@@ -690,5 +687,13 @@ Switch projects and subprojects from NEXT back to TODO"
 (add-hook 'org-mode-hook 'lotuc/org-mode-hook)
 (add-hook 'org-babel-after-execute-hook 'bh/display-inline-images 'append)
 (add-hook 'org-clock-out-hook 'bh/remove-empty-drawer-on-clock-out 'append)
+
+;; https://github.com/caiorss/org-wiki
+(require 'org-wiki)
+(defalias 'wiki/root #'org-wiki-switch-root)
+(defalias 'wiki/helm #'org-wiki-helm)
+(defalias 'wiki/insert #'org-wiki-index)
+(defalias 'wiki/close #'org-wiki-close)
+(defalias 'wiki/new #'org-wiki-insert-new)
 
 (provide 'lotuc-org)

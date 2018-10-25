@@ -106,9 +106,6 @@
 
 (defun prelude-python-mode-defaults ()
   "Defaults for Python programming."
-  (if (not (getenv "VIRTUAL_ENV"))
-      (set-virtualenv-dir "."))
-
   (subword-mode +1)
   (eldoc-mode 1)
   (python-docstring-mode)
@@ -128,8 +125,6 @@
   (setq python-shell-interpreter "ipython")
   (setq-local pipenv-projectile-after-switch-function
               #'pipenv-projectile-after-switch-extended))
-
-(setq prelude-python-mode-hook 'prelude-python-mode-defaults)
 
 (add-hook 'python-mode-hook 'prelude-python-mode-defaults)
 

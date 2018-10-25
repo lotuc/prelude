@@ -1,16 +1,16 @@
-(prelude-require-packages '(autumn-light-theme
+(prelude-require-packages '(
+                            autumn-light-theme
                             dracula-theme
                             solarized-theme
                             moe-theme
                             flatui-theme
                             flatland-theme
+                            gruvbox-theme
                             neotree
                             all-the-icons
                             spaceline
                             spaceline-all-the-icons
-                            multiple-cursors
-                            gruvbox-theme
-                            ))
+                            multiple-cursors))
 (require 'yasnippet)
 (require 'multiple-cursors)
 (require 'spaceline-config)
@@ -20,6 +20,7 @@
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
 (global-set-key [C-f8] 'neotree-projectile-action)
+(setq neo-window-fixed-size nil)
 (setq projectile-use-git-grep 1)
 (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 
