@@ -8,6 +8,7 @@
                          ;; ("org" . "https://orgmode.org/elpa/")
                          ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
 
+(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (line-number-mode 1)
 (toggle-scroll-bar -1)
 (prefer-coding-system 'utf-8)

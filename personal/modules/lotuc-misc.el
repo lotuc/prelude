@@ -8,7 +8,8 @@
                             auto-complete
                             protobuf-mode
                             scribble-mode
-                            youdao-dictionary))
+                            youdao-dictionary
+                            proof-general))
 
 (require 'magit)
 (require 'pdf-tools)
