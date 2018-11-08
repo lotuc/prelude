@@ -31,6 +31,7 @@
     (push `(prelude-mode . ,newmap) minor-mode-overriding-map-alist)))
 (add-hook 'eshell-mode-hook 'fix-c-a)
 (add-hook 'haskell-interactive-mode-hook 'fix-c-a)
+(add-hook 'coq-mode #'smartparens-mode)
 
 (global-set-key (kbd "\C-cq") 'youdao-dictionary-search-at-point+)
 (defalias 'youdao/search #'youdao-dictionary-search)
