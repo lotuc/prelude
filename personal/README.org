@@ -3,3 +3,38 @@
 | Keybinding | Description                                                        |
 |------------+--------------------------------------------------------------------|
 | ~C-x M-m~  | Open eshell and goto current file's location (~lotuc/eshell-here~) |
+** SQLi
+| Keybinding  | Description               |
+|-------------+---------------------------|
+| ~C-c C-b~   | ~sql-send-buffer~         |
+| ~C-c C-c~   | ~sql-send-paragraph~      |
+| ~C-c C-r~   | ~sql-send-region~         |
+| ~C-c C-s~   | ~sql-send-string~         |
+| ~C-M-q~     | ~prog-indent-sexp~        |
+| ~C-c C-l a~ | ~sql-list-all~            |
+| ~C-c C-l t~ | ~sql-list-table~          |
+| ~C-c TAB~   | ~sql-product-interactive~ |
+
+* Major Modes
+** SQLi
+- [[https://blog.rackspace.com/an-introduction-to-emacs-sqli-mode][An introduction to emacs SQLi mode]]
+- [[https://gist.github.com/mmasashi/4fe95399494cbfd3c89171192cae4ba0][Install Oracle instant client (sqlplus) on MacOSX]]
+
+#+BEGIN_SRC sh
+sqlplus user@host:port
+# prompt for password
+#+END_SRC
+
+#+CAPTION: Pretty print for sqlplus ($ORACLE_HOME/sqlplus/admin/glogin.sql)
+#+BEGIN_SRC sql
+SET PAGESIZE 0
+SET NEWPAGE 0
+SET SPACE 0
+SET LINESIZE 1000
+SET ECHO OFF
+SET FEEDBACK OFF
+SET VERIFY OFF
+SET HEADING OFF
+SET MARKUP HTML OFF SPOOL OFF
+SET COLSEP ' '
+#+END_SRC
