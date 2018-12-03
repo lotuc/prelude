@@ -10,6 +10,10 @@
 (require 'eshell)
 (require 'pipenv)
 
+;; https://github.com/davidhalter/jedi-vim/issues/704
+;; https://github.com/davidhalter/jedi/pull/829/commits
+;; https://github.com/davidhalter/jedi-vim/issues/685
+
 ;; https://github.com/palantir/python-language-server
 ;; pip install 'python-language-server[all]'
 (defun find-python-project-root ()

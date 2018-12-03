@@ -109,7 +109,13 @@ crux-kill-other-buffers 'Doesn't mess with special buffers', we kill all others"
 (defun lotuc/cleanup-buffers ()
   (interactive)
   (flet ((kill-buffer-ask (buffer) (kill-buffer buffer)))
-    (dolist (e '("*lsp" "magit" "*ag search"))
+    (dolist (e '("*lsp"
+                 "magit"
+                 "*ag search"
+                 "*Backtrace*"
+                 "*Completions*"
+                 "*Flycheck"
+                 "*Shell Command"))
       (kill-matching-buffers e))))
 
 (defun lotuc/open-in-external-app ()
