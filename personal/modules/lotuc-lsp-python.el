@@ -9,6 +9,7 @@
 (require 'lsp-python)
 (require 'eshell)
 (require 'pipenv)
+(require 'cl)
 
 ;; https://github.com/davidhalter/jedi-vim/issues/704
 ;; https://github.com/davidhalter/jedi/pull/829/commits
@@ -54,7 +55,10 @@
                       'python-pylint venv-pylint)))
                (pyvenv-activate path)
                (message path)
-               (lsp-restart-workspace))
+               (lsp-restart-workspace)
+               (flet ((kill-buffer-ask (buffer) (kill-buffer buffer)))
+                 (dolist (e '("*lsp-python stderr"))
+                   (kill-matching-buffers e))))
       (message "venv not found"))))
 
 (defun lotuc/unset-virtualenv-dir ()
