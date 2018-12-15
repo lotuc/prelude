@@ -9,7 +9,7 @@
 ;; (require 'prelude-evil)
 
 ;;; Programming languages support
-(require 'prelude-lsp)
+;; (require 'prelude-lsp)
 ;; (require 'prelude-c)
 (require 'prelude-clojure)
 ;; (require 'prelude-coffee)

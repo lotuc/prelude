@@ -1,10 +1,11 @@
 (require 'package)
 
-(setq package-archives '(("gnu"   . "https://elpa.emacs-china.org/gnu/")
-                         ("melpa" . "https://elpa.emacs-china.org/melpa/")
-                         ;; ("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ;; ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-                         ;; ("melpa" . "https://melpa.org/packages/")
+(setq package-archives '(
+                          ;; ("gnu"   . "https://elpa.emacs-china.org/gnu/")
+                         ;; ("melpa" . "https://elpa.emacs-china.org/melpa/")
+                          ("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                          ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+                          ;; ("melpa" . "https://melpa.org/packages/")
                          ;; ("org" . "https://orgmode.org/elpa/")
                          ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
 

@@ -1,6 +1,6 @@
 (prelude-require-packages '(lsp-mode
                             lsp-javascript-typescript
-                            lsp-typescript
+                            ;; lsp-typescript
                             typescript-mode
                             prettier-js
                             web-mode))
@@ -8,7 +8,7 @@
 (require 'company)
 (require 'prettier-js)
 ;; (require 'lsp-javascript-typescript)
-(require 'lsp-typescript)
+;; (require 'lsp-typescript)
 
 (defun lotuc/js-ts-defaults ()
   ;; (lsp-javascript-typescript-enable)
@@ -19,7 +19,7 @@
   ;;   .filter(d => [8002, 8003, 8004, 8005, 8006, 8007, 8008, 8009, 8010,
   ;;               8011, 8012, 8013, 8014, 8015, 8016].indexOf(d.code) === -1)
   ;;   .map(protocol_translation_1.toDiagnostic));
-  (lsp-typescript-enable)
+  ;; (lsp-typescript-enable)
   (setq typescript-indent-level 2)
   (setq js-indent-level 2)
   (flycheck-mode +1)

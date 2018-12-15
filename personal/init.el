@@ -11,9 +11,10 @@
 (require 'lotuc-eshell)
 (require 'lotuc-lilypond)
 
-;; (require 'lotuc-lsp)
-(require 'lotuc-lsp-js-ts)
+(require 'lotuc-lsp)
+;; (require 'lotuc-lsp-js-ts)
 (require 'lotuc-lsp-python)
+;; (require 'lotuc-java)
 
 (require 'lotuc-go)
 (require 'lotuc-sql)

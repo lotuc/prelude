@@ -38,7 +38,7 @@
 
 (require 'lsp-ui)
 (require 'company-lsp)
-(require 'lsp-imenu)
+;; (require 'lsp-imenu)
 
 (push 'company-lsp company-backends)
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
