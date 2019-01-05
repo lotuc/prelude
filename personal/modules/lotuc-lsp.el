@@ -49,7 +49,6 @@
           (w-start (window-start)))
       (lsp--apply-text-edits edits)
       (goto-char point)
-      (goto-char (line-beginning-position))
       (set-window-start (selected-window) w-start))))
 
 (provide 'lotuc-lsp)

@@ -108,7 +108,7 @@ crux-kill-other-buffers 'Doesn't mess with special buffers', we kill all others"
 
 (defun lotuc/cleanup-buffers ()
   (interactive)
-  (flet ((kill-buffer-ask (buffer) (kill-buffer buffer)))
+  (cl-flet ((kill-buffer-ask (buffer) (kill-buffer buffer)))
     (dolist (e '("*lsp"
                  "magit"
                  "*ag search"
