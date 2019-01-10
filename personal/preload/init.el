@@ -1,11 +1,11 @@
 (require 'package)
 
 (setq package-archives '(
-                          ;; ("gnu"   . "https://elpa.emacs-china.org/gnu/")
+                         ;; ("gnu"   . "https://elpa.emacs-china.org/gnu/")
                          ;; ("melpa" . "https://elpa.emacs-china.org/melpa/")
-                          ("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                          ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-                          ;; ("melpa" . "https://melpa.org/packages/")
+                         ("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                         ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+                         ;; ("melpa" . "https://melpa.org/packages/")
                          ;; ("org" . "https://orgmode.org/elpa/")
                          ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
 
@@ -17,6 +17,19 @@
 (setq-default indicate-empty-lines t)
 (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
 (setq inhibit-startup-screen t initial-scratch-message "" make-backup-files nil)
+
+(defun toggle-transparency ()
+  (interactive)
+  (let ((alpha (frame-parameter nil 'alpha)))
+    (set-frame-parameter
+     nil 'alpha
+     (if (eql (cond ((numberp alpha) alpha)
+                    ((numberp (cdr alpha)) (cdr alpha))
+                    ;; Also handle undocumented (<active> <inactive>) form.
+                    ((numberp (cadr alpha)) (cadr alpha)))
+              100)
+         '(90 . 80) '(100 . 100)))))
+(toggle-transparency)
 
 ;; Smooth Scrolling
 (setq scroll-step 1)

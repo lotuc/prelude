@@ -690,6 +690,7 @@ Switch projects and subprojects from NEXT back to TODO"
 
 ;; https://github.com/caiorss/org-wiki
 (require 'org-wiki)
+(defalias 'wiki #'org-wiki-switch-root)
 (defalias 'wiki/root #'org-wiki-switch-root)
 (defalias 'wiki/helm #'org-wiki-helm)
 (defalias 'wiki/insert #'org-wiki-index)
