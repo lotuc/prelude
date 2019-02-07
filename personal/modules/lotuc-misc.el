@@ -1,10 +1,13 @@
 (prelude-require-packages '(
+                            string-inflection
+                            paredit
                             org-plus-contrib
                             ag
                             docker
                             yasnippet-snippets
                             magithub
                             pdf-tools
+                            org-noter
                             auto-complete
                             protobuf-mode
                             scribble-mode
@@ -16,10 +19,35 @@
 (require 'calibre-mode)
 (require 'cl)
 
+(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
+(add-hook 'clojure-mode-hook          #'enable-paredit-mode)
+
+
 ;; https://stackoverflow.com/questions/5019724/in-emacs-what-does-this-error-mean-warning-cl-package-required-at-runtime
 (eval-when-compile (require 'cl))
 
+;; pdf tools
 (pdf-tools-install)
+(setq-default pdf-view-display-size 'fit-width)
+(setq pdf-annot-activate-created-annotations t)
+;; use normal isearch
+(define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+;; turn off cua so copy works
+(add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+(setq pdf-view-resize-factor 1.1)
+(define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
+(define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
+(define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete)
+
+(setq magithub-clone-default-directory (expand-file-name
+                                        "savefile/magithub"
+                                        user-emacs-directory))
 
 ;; https://github.com/bbatsov/prelude/issues/998
 (defun fix-c-a ()

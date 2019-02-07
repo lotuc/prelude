@@ -32,3 +32,4 @@ anaconda-mode/
 org-clock-save.el
 ac-comphist.dat
 emms/
+.lsp-session*

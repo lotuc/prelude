@@ -22,10 +22,12 @@
 (require 'bbdb-com)
 (require 'org-crypt)
 (require 'epa-file)
+(require 'org-attach)
 (require 'org-attach-screenshot)
 
 (with-eval-after-load 'ox (require 'ox-hugo))
 
+(setq org-link-abbrev-alist '(("att" . org-attach-expand-link)))
 ;;;; Screen capturing program
 (when (equal system-type 'darwin)
   (setq org-attach-screenshot-command-line "screencapture -i %f"))
@@ -687,14 +689,5 @@ Switch projects and subprojects from NEXT back to TODO"
 (add-hook 'org-mode-hook 'lotuc/org-mode-hook)
 (add-hook 'org-babel-after-execute-hook 'bh/display-inline-images 'append)
 (add-hook 'org-clock-out-hook 'bh/remove-empty-drawer-on-clock-out 'append)
-
-;; https://github.com/caiorss/org-wiki
-(require 'org-wiki)
-(defalias 'wiki #'org-wiki-switch-root)
-(defalias 'wiki/root #'org-wiki-switch-root)
-(defalias 'wiki/helm #'org-wiki-helm)
-(defalias 'wiki/insert #'org-wiki-index)
-(defalias 'wiki/close #'org-wiki-close)
-(defalias 'wiki/new #'org-wiki-insert-new)
 
 (provide 'lotuc-org)

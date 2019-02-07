@@ -3,9 +3,10 @@
 (setq package-archives '(
                          ;; ("gnu"   . "https://elpa.emacs-china.org/gnu/")
                          ;; ("melpa" . "https://elpa.emacs-china.org/melpa/")
-                         ("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-                         ;; ("melpa" . "https://melpa.org/packages/")
+                         ;; ("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                         ;; ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+                         ("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
                          ;; ("org" . "https://orgmode.org/elpa/")
                          ("org-cn"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
 
@@ -48,7 +49,7 @@
       ;; 'flatui
       ;; 'zenburn
       ;; 'dracula
-      'solarized-dark)
+      'solarized-light)
 ;; Solarized theme related
 ;; https://github.com/bbatsov/solarized-emacs/issues/143
 (setq solarized-use-variable-pitch nil)

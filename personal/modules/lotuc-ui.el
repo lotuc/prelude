@@ -22,10 +22,8 @@
 (global-set-key [f8] 'treemacs)
 (global-set-key [C-f8] 'treemacs-projectile)
 (treemacs-resize-icons 44)
-(treemacs-follow-mode t)
 ;; ace-window
 ;; https://github.com/Alexander-Miller/treemacs/issues/301
-(setq aw-ignored-buffers (delete 'treemacs-mode aw-ignored-buffers))
 (setq treemacs-collapse-dirs              (if (executable-find "python") 3 0)
       treemacs-deferred-git-apply-delay   0.5
       treemacs-display-in-side-window     t
@@ -43,7 +41,7 @@
       treemacs-no-delete-other-windows    t
       treemacs-project-follow-cleanup     nil
       treemacs-persist-file              (expand-file-name
-                                          ".cache/treemacs-persist"
+                                          "savefile/treemacs-persist.org"
                                           user-emacs-directory)
       treemacs-recenter-after-file-follow nil
       treemacs-recenter-after-tag-follow  nil
@@ -56,6 +54,8 @@
       treemacs-tag-follow-cleanup         t
       treemacs-tag-follow-delay           1.5
       treemacs-width                      20)
+(with-eval-after-load "treemacs"
+  (setq aw-ignored-buffers (delete 'treemacs-mode aw-ignored-buffers)))
 
 ;; (require 'neotree)
 ;; (global-set-key [f8] 'neotree-toggle)

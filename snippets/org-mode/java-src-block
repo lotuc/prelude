@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: java-src-block
+# key: <sj
+# --
+#+BEGIN_SRC java :classname Main :results output
+public class Main {
+  $0
+}
+#+END_SRC

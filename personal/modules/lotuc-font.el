@@ -32,7 +32,7 @@
                                 (+ size 2)
                               kaitisize))))))))
 ;; 15 - 18
-(lotuc/set-cn-kaiti 12)
+;; (lotuc/set-cn-kaiti 12)
 
 (defun lotuc/set-cn-font-size (size)
   "设置字体大小，仅在有 WenQuanYi Zen Hei Mono + Monaco 时有效"
@@ -49,5 +49,17 @@
            (frame-parameter nil 'font)
            charset
            (font-spec :family "WenQuanYi Zen Hei Mono" :size (+ size 2))))))))
+
+(defun lotuc/default-font ()
+  (interactive)
+    (when (not (null (x-list-fonts "Monaco")))
+      (set-face-attribute 'default nil :font (format "Monaco %d" 13))
+      (dolist (charset '(kana han symbol cjk-misc bopomofo))
+        (set-fontset-font
+         (frame-parameter nil 'font)
+         charset
+         (font-spec :family "Monaco")))))
+
+(lotuc/default-font)
 
 (provide 'lotuc-font)
