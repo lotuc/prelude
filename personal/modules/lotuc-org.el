@@ -355,7 +355,14 @@ See `org-capture-templates' for more information."
   (interactive)
   (org-insert-time-stamp nil t t nil nil nil))
 
-(defun lotuc/org-attach-insert ()
+(defun lotuc/get-attach-file-path (filename)
+  (let* ((attach-dir (org-attach-dir t))
+         (path (expand-file-name filename attach-dir))
+         (file-path (file-relative-name path default-directory)))
+    (org-attach-annex-get-maybe path)
+    path))
+
+(defun lotuc/insert-attach-file-path ()
   "Insert attach path at current point"
   (interactive)
   (let* ((attach-dir (org-attach-dir t))
@@ -367,7 +374,7 @@ See `org-capture-templates' for more information."
          (path (expand-file-name file attach-dir))
          (file-path (file-relative-name path default-directory)))
     (org-attach-annex-get-maybe path)
-    (insert (concat "[[file:" file-path "]]"))))
+    (insert (format "[[att:%s][%s]]" file file))))
 
 (defun lotuc/org-columns-insert-dblock ()
   "Copy from org-colview.el. difference is that we enable :indent by default"
@@ -670,6 +677,9 @@ Switch projects and subprojects from NEXT back to TODO"
               ("STYLE_ALL" . "habit"))))
 
 ;;;; Personal hooks
+(setq org-link-abbrev-alist '(("att" . lotuc/get-attach-file-path)
+                              ("calibre" . lotuc/calibre-get-path)))
+
 (defun lotuc/org-mode-hook ()
   (progn
     (dolist (face '(org-level-1
@@ -679,7 +689,7 @@ Switch projects and subprojects from NEXT back to TODO"
                     org-level-5))
       (set-face-attribute face nil :weight 'semi-bold :height 1.0))
     (local-set-key (kbd "C-c C-x i") 'lotuc/org-columns-insert-dblock)
-    (local-set-key (kbd "<f9> a") 'lotuc/org-attach-insert)))
+    (local-set-key (kbd "<f9> a") 'lotuc/insert-attach-file-path)))
 
 (defun bh/display-inline-images ()
   (condition-case nil

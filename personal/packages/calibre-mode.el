@@ -1,5 +1,6 @@
 ;; https://github.com/whacked/calibre-mode
 (require 'cl)
+(require 'org)
 
 (defvar sql-sqlite-program "/usr/bin/sqlite3")
 (defvar calibre-root-dir (expand-file-name "~/Calibre Library"))
@@ -7,40 +8,6 @@
 
 (defun calibre-chomp (s)
   (replace-regexp-in-string "[\s\n]+$" "" s))
-
-(defvar calibre-default-opener
-  (cond ((eq system-type 'gnu/linux)
-         ;; HACK!
-         ;; "xdg-open"
-         ;; ... but xdg-open doesn't seem work as expected! (process finishes but program doesn't launch)
-         ;; appears to be related to http://lists.gnu.org/archive/html/emacs-devel/2009-07/msg00279.html
-         ;; you're better off replacing it with your exact program...
-         ;; here we run xdg-mime to figure it out for *pdf* only. So this is not general!
-         (calibre-chomp
-          (shell-command-to-string
-           (concat
-            "grep Exec "
-            (first
-             ;; attempt for more linux compat, ref
-             ;; http://askubuntu.com/questions/159369/script-to-find-executable-based-on-extension-of-a-file
-             ;; here we try to find the location of the mimetype opener that xdg-mime refers to.
-             ;; it works for okular (Exec=okular %U %i -caption "%c"). NO IDEA if it works for others!
-             (delq nil (let ((mime-appname (calibre-chomp (replace-regexp-in-string
-                                                           "kde4-" "kde4/"
-                                                           (shell-command-to-string "xdg-mime query default application/pdf")))))
-
-                         (mapcar
-                          #'(lambda (dir) (let ((outdir (concat dir "/" mime-appname))) (if (file-exists-p outdir) outdir)))
-                          '("~/.local/share/applications" "/usr/local/share/applications" "/usr/share/applications")))))
-            "|head -1|awk '{print $1}'|cut -d '=' -f 2"))))
-        ((eq system-type 'windows-nt)
-         ;; based on
-         ;; http://stackoverflow.com/questions/501290/windows-equivalent-of-the-mac-os-x-open-command
-         ;; but no idea if it actuall works
-         "start")
-        ((eq system-type 'darwin)
-         "open")
-        (t (message "unknown system!?"))))
 
 (defun calibre-query (sql-query)
   (shell-command-to-string
@@ -59,7 +26,8 @@
           (:book-title             ,(nth 6 spl-query-result))
           (:file-path    ,(concat (file-name-as-directory calibre-root-dir)
                                   (file-name-as-directory (nth 2 spl-query-result))
-                                  (nth 3 spl-query-result) "." (downcase (nth 4 spl-query-result))))))))
+                                  (nth 3 spl-query-result) "."
+                                  (downcase (nth 4 spl-query-result))))))))
 
 (defun calibre-build-default-query (whereclause &optional limit)
   (concat "SELECT "
@@ -70,39 +38,52 @@
           (when limit
             (format "LIMIT %s" limit))))
 
+(defun calibre-query-build-like (fieldname argstring)
+  (format "LOWER(%s) LIKE '\\''%%%s%%'\\''" fieldname (downcase argstring)))
+
+(defun calibre-query-build-like-author (argstring)
+  (calibre-query-build-like "b.author_sort" argstring))
+
+(defun calibre-query-build-like-title (argstring)
+  (calibre-query-build-like "b.title" argstring))
+
 (defun calibre-query-by-field (wherefield argstring)
-  (concat "WHERE lower(" wherefield ") LIKE '\\''%%"
-          (format "%s" (downcase argstring))
-          "%%'\\''"))
+  (format "WHERE %s" (calibre-query-build-like wherefield argstring)))
 
 (defun calibre-parse-query-string (search-string)
-  (interactive)
-  "a:<author_name> | t:<title_name> | <author_or_title>"
-  (let ((spl-arg (split-string search-string ":")))
-    (if (and (< 1 (length spl-arg))
-             (= 1 (length (first spl-arg))))
-        (let* ((command (downcase (first spl-arg)))
-               (argstring (second spl-arg))
-               (wherefield
-                (cond ((or (string= "a" (substring command 0 1))
-                           (string= "author" (substring command 0 1)))
-                       "b.author_sort")
-                      ((or (string= "t" (substring command 0 1))
-                           (string= "title" (substring command 0 1)))
-                       "b.title")
-                      )))
-          (calibre-query-by-field wherefield argstring))
-      (format "WHERE lower(b.author_sort) LIKE '\\''%%%s%%'\\'' OR lower(b.title) LIKE '\\''%%%s%%'\\''"
-              (downcase search-string) (downcase search-string)))))
+    (interactive)
+    "a:<author_name> | t:<title_name> | <author_or_title> | <query-1> & <query-2>"
+    (defun like (column s)
+      (format "LOWER(%s) LIKE '\\''%%%s%%'\\''" column (downcase s)))
+    (defun fields-like (s) (format "%s OR %s"
+                                   (calibre-query-build-like-author s)
+                                   (calibre-query-build-like-title s)))
+    (defun parse-part (part)
+      (let* ((spl-arg (split-string part ":"))
+             (argname (string-trim (car spl-arg)))
+             (argstring (if (= 1 (length spl-arg))
+                            nil
+                          (string-trim (string-join (cdr spl-arg) ":")))))
+        (cond ((not argstring) (fields-like part))
+              ((or (string= "a" argname)
+                   (string= "author" argname))
+               (calibre-query-build-like-author argstring))
+              ((or (string= "t" argname)
+                   (string= "title" argname))
+               (calibre-query-build-like-title argstring))
+              ;; default searching
+              (t (fields-like part)))))
+    (let* ((parts (split-string search-string "&"))
+           (where-parts (mapcar #'parse-part parts)))
+      (format "WHERE %s" (string-join where-parts " AND "))))
 
 (defun calibre-read-query-filter-command ()
-  "a:<author_name> | t:<title_name> | <author_or_title>"
   (let* ((default-string (if mark-active (calibre-chomp (buffer-substring (mark) (point)))))
          ;; prompt &optional initial keymap read history default
-         (search-string (read-string (format "search string[ %s ]: "
-                                             (if default-string
-                                                 default-string
-                                               "a:<author_name> | t:<title_name> | <author_or_title>"))
+         (search-string (read-string
+                         (format "search string[ %s ]: "
+                                 (if default-string default-string
+                                   "a:<author_name> | t:<title_name> | <author_or_title> | <query-1> & <query-2>"))
                                      nil nil default-string)))
     (calibre-parse-query-string search-string)))
 
@@ -122,58 +103,58 @@
 ;; define the result handlers here in the form of (hotkey description handler-function)
 ;; where handler-function takes 1 alist argument containing the result record
 (defvar calibre-handler-alist
-  '(("o" "open"
-                               (lambda (res) (find-file-other-window (getattr res :file-path))))
-                              ("O" "open other frame"
-                               (lambda (res) (find-file-other-frame (getattr res :file-path))))
-                              ("v" "open with default viewer"
-                               (lambda (res)
-                                 (start-process "shell-process" "*Messages*" calibre-default-opener (getattr res :file-path))))
-                              ("x" "open with xournal"
-                               (lambda (res) (start-process "xournal-process" "*Messages*" "xournal"
-                                                            (let ((xoj-file-path (concat calibre-root-dir "/" (getattr res :book-dir) "/" (getattr res :book-name) ".xoj")))
-                                                              (if (file-exists-p xoj-file-path)
-                                                                  xoj-file-path
-                                                                (getattr res :file-path))))))
-                              ("s" "insert calibre search string"
-                               (lambda (res) (mark-aware-copy-insert (concat "title:\"" (getattr res :book-title) "\""))))
-                              ("i" "get book information (SELECT IN NEXT MENU) and insert"
-                               (lambda (res)
-                                 (let ((opr (char-to-string (read-char
-                                                             ;; render menu text here
-                                                             (concat "What information do you want?\n"
-                                                                     "i : values in the book's `Ids` field (ISBN, DOI...)\n"
-                                                                     "d : pubdate\n"
-                                                                     "a : author list\n")))))
-                                   (cond ((string= "i" opr)
-                                          ;; stupidly just insert the plain text result
-                                          (mark-aware-copy-insert
-                                           (calibre-chomp
-                                            (calibre-query (concat "SELECT "
-                                                                   "idf.type, idf.val "
-                                                                   "FROM identifiers AS idf "
-                                                                   (format "WHERE book = %s" (getattr res :id)))))))
-                                         ((string= "d" opr)
-                                          (mark-aware-copy-insert
-                                           (substring (getattr res :book-pubdate) 0 10)))
-                                         ((string= "a" opr)
-                                          (mark-aware-copy-insert
-                                           (calibre-chomp (getattr res :author-sort))))
-                                         (t
-                                          (deactivate-mark)
-                                          (message "cancelled"))))
-
-                                 ))
-                              ("p" "insert file path"
-                               (lambda (res) (mark-aware-copy-insert (getattr res :file-path))))
-                              ("t" "insert title"
-                               (lambda (res) (mark-aware-copy-insert (getattr res :book-title))))
-                              ("j" "insert entry json"
-                               (lambda (res) (mark-aware-copy-insert (json-encode res))))
-                              ("q" "(or anything else) to cancel"
-                               (lambda (res)
-                                 (deactivate-mark)
-                                 (message "cancelled")))))
+  '(("o" "open with emacs"
+     (lambda (res) (org-open-file-with-emacs (getattr res :file-path))))
+    ("O" "open with system"
+     (lambda (res) (org-open-file-with-system (getattr res :file-path))))
+    ("x" "open with xournal"
+     (lambda (res) (start-process "xournal-process" "*Messages*" "xournal"
+                                  (let ((xoj-file-path (concat calibre-root-dir "/" (getattr res :book-dir) "/" (getattr res :book-name) ".xoj")))
+                                    (if (file-exists-p xoj-file-path)
+                                        xoj-file-path
+                                      (getattr res :file-path))))))
+    ("s" "insert calibre search string"
+     (lambda (res) (mark-aware-copy-insert (concat "title:\"" (getattr res :book-title) "\""))))
+    ("i" "get book information (SELECT IN NEXT MENU) and insert"
+     (lambda (res)
+       (let ((opr (char-to-string (read-char
+                                   ;; render menu text here
+                                   (concat "What information do you want?\n"
+                                           "i : values in the book's `Ids` field (ISBN, DOI...)\n"
+                                           "d : pubdate\n"
+                                           "a : author list\n")))))
+         (cond ((string= "i" opr)
+                ;; stupidly just insert the plain text result
+                (mark-aware-copy-insert
+                 (calibre-chomp
+                  (calibre-query (concat "SELECT "
+                                         "idf.type, idf.val "
+                                         "FROM identifiers AS idf "
+                                         (format "WHERE book = %s" (getattr res :id)))))))
+               ((string= "d" opr)
+                (mark-aware-copy-insert
+                 (substring (getattr res :book-pubdate) 0 10)))
+               ((string= "a" opr)
+                (mark-aware-copy-insert
+                 (calibre-chomp (getattr res :author-sort))))
+               (t
+                (deactivate-mark)
+                (message "cancelled"))))))
+    ("p" "insert file path"
+     (lambda (res) (mark-aware-copy-insert (getattr res :file-path))))
+    ("P" "insert org file path"
+     (lambda (res) (mark-aware-copy-insert (format "[[calibre:a:%s & t:%s][%s]]"
+                                                   (getattr res :author-sort)
+                                                   (getattr res :book-title)
+                                                   (getattr res :book-title)))))
+    ("t" "insert title"
+     (lambda (res) (mark-aware-copy-insert (getattr res :book-title))))
+    ("j" "insert entry json"
+     (lambda (res) (mark-aware-copy-insert (json-encode res))))
+    ("q" "(or anything else) to cancel"
+     (lambda (res)
+       (deactivate-mark)
+       (message "cancelled")))))
 
 (defun calibre-file-interaction-menu (calibre-item)
   (if (file-exists-p (getattr calibre-item :file-path))
@@ -235,6 +216,28 @@
         (if (= 1 (length res-list))
             (calibre-file-interaction-menu (car res-list))
           (calibre-format-selector-menu res-list))))))
+
+(defun lotuc/calibre-get-path (search-string)
+  (interactive)
+  (let* ((pths (mapcar
+                 (lambda (alist) (getattr alist :file-path))
+                 (mapcar
+                  #'calibre-query-to-alist
+                  (split-string
+                   (calibre-chomp
+                    (calibre-query (calibre-build-default-query
+                                    (calibre-parse-query-string search-string))))
+                   "\n"))))
+         (count (length pths)))
+    (cond
+     ((= count 1) (car pths))
+     ((= count 0) (progn (message
+                          (format "calibre-get-path no book found: %s"
+                                  search-string))
+                         nil))
+     (t (progn (message (format "calibre-get-path found multiple(%d): %s"
+                                count search-string))
+               (car pths))))))
 
 (global-set-key "\C-cC" 'calibre-find)
 
