@@ -143,8 +143,7 @@
     ("p" "insert file path"
      (lambda (res) (mark-aware-copy-insert (getattr res :file-path))))
     ("P" "insert org file path"
-     (lambda (res) (mark-aware-copy-insert (format "[[calibre:a:%s & t:%s][%s]]"
-                                                   (getattr res :author-sort)
+     (lambda (res) (mark-aware-copy-insert (format "[[calibre:t:%s][%s]]"
                                                    (getattr res :book-title)
                                                    (getattr res :book-title)))))
     ("t" "insert title"

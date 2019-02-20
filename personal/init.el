@@ -30,3 +30,11 @@
 (let* ((private-setting (expand-file-name "init.el" private-settings)))
   (when (file-exists-p private-setting)
     (load-file private-setting)))
+
+(setq org-directory "~/org")
+(setq org-agenda-files '("~/org/agenda/todo.org"))
+(setq org-default-notes-file "~/org/agenda/refile.org")
+(setq org-id-track-globally t)
+(setq org-id-locations-file (expand-file-name ".org-id-locations" org-directory))
+(setq calibre-root-dir (expand-file-name "~/Documents/Calibre Library/Library"))
+(setq calibre-db (concat calibre-root-dir "/metadata.db"))

@@ -178,4 +178,29 @@ Version 2016-10-15"
            (let ((process-connection-type nil))
              (start-process "" nil "xdg-open" $fpath))) $file-list))))))
 
+(require 'cl-lib)
+(require 'helm-ag)
+(setq helm-ag-use-agignore t)
+;;;###autoload
+(defun lotuc/org-search ()
+  (interactive)
+  "Search over all my org files"
+  (cl-letf
+      (((symbol-function 'helm-ag--query)
+        (lambda  ()
+          (let* ((searched-word (helm-ag--searched-word))
+                 (marked-word (helm-ag--marked-input nil))
+                 (query (read-from-minibuffer "Pattern: "
+                                              (or marked-word searched-word)
+                                              nil
+                                              nil
+                                              'helm-ag--command-history
+                                              (helm-aif (symbol-at-point)
+                                                  (symbol-name it)))))
+            (when (string-empty-p query)
+              (error "Input is empty!!"))
+            (setq helm-ag--last-query (format "--org %s" query))))))
+    (helm-ag org-directory)))
+
+
 (provide 'lotuc-misc)

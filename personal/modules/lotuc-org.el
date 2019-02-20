@@ -677,6 +677,8 @@ Switch projects and subprojects from NEXT back to TODO"
               ("STYLE_ALL" . "habit"))))
 
 ;;;; Personal hooks
+;; attach link: [[att:attach-file-name]]
+;; calibre file link: [[calibre:t:book-title]] (insert with calibre-find - P)
 (setq org-link-abbrev-alist '(("att" . lotuc/get-attach-file-path)
                               ("calibre" . lotuc/calibre-get-path)))
 
