@@ -25,9 +25,23 @@
 (require 'org-attach)
 (require 'org-attach-screenshot)
 
-(with-eval-after-load 'ox (require 'ox-hugo))
-
 (setq org-link-abbrev-alist '(("att" . org-attach-expand-link)))
+
+;; https://emacs.stackexchange.com/questions/35931/open-org-mode-link-of-gif-image-and-display-inside-of-emacs-buffer-with-command
+(setq org-file-apps
+      '((auto-mode . emacs)
+        ("\\.mm\\'" . default)
+        ("\\.x?html?\\'" . default)
+        ("\\.pdf\\'" . default)
+        ("\\.gif\\'" . (lambda (file link)
+                         (let ((my-image (create-image file))
+                               (tmpbuf (get-buffer-create "*gif")))
+                           (switch-to-buffer-other-window tmpbuf)
+                           (erase-buffer)
+                           (insert-image my-image)
+                           (let ((image-default-frame-delay 0.03))
+                             (image-animate my-image 0 t)))))))
+
 ;;;; Screen capturing program
 (when (equal system-type 'darwin)
   (setq org-attach-screenshot-command-line "screencapture -i %f"))
@@ -346,8 +360,10 @@ See `org-capture-templates' for more information."
   (setq data (replace-regexp-in-string
               (concat "\\(\\cc\\)\n\\(\\cc\\)") "\\1\\2" data)))
 (with-eval-after-load 'ox
-  (add-to-list 'org-export-filter-paragraph-functions
-               'paragraph-filter-delete-extra-space))
+  (progn
+    (require 'ox-hugo)
+    (add-to-list 'org-export-filter-paragraph-functions
+                 'paragraph-filter-delete-extra-space)))
 
 ;;;; Functions
 
@@ -681,17 +697,6 @@ Switch projects and subprojects from NEXT back to TODO"
 ;; calibre file link: [[calibre:t:book-title]] (insert with calibre-find - P)
 (setq org-link-abbrev-alist '(("att" . lotuc/get-attach-file-path)
                               ("calibre" . lotuc/calibre-get-path)))
-
-(defun lotuc/org-mode-hook ()
-  (progn
-    (dolist (face '(org-level-1
-                    org-level-2
-                    org-level-3
-                    org-level-4
-                    org-level-5))
-      (set-face-attribute face nil :weight 'semi-bold :height 1.0))
-    (local-set-key (kbd "C-c C-x i") 'lotuc/org-columns-insert-dblock)
-    (local-set-key (kbd "<f9> a") 'lotuc/insert-attach-file-path)))
 
 (defun bh/display-inline-images ()
   (condition-case nil

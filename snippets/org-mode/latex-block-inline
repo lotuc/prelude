@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: inline latex block
+# key: $
+# --
+$$1$ $0
