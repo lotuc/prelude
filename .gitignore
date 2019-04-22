@@ -33,3 +33,5 @@ org-clock-save.el
 ac-comphist.dat
 emms/
 .lsp-session*
+xkcd
+transient

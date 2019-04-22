@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: js-src-block-output
+# key: <jso
+# --
+#+BEGIN_SRC js :results output
+$0
+#+END_SRC

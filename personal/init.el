@@ -15,6 +15,7 @@
 ;; (require 'lotuc-lsp-js-ts)
 (require 'lotuc-lsp-python)
 ;; (require 'lotuc-java)
+(require 'lotuc-json)
 
 (require 'lotuc-go)
 (require 'lotuc-sql)

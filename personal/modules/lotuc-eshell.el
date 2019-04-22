@@ -6,11 +6,6 @@
   (let ((eshell-buffer-maximum-lines 0))
     (eshell-truncate-buffer)))
 
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            )
-          )
-
 (defalias 'o 'find-file)
 (defalias 'oo 'find-file-other-window)
 

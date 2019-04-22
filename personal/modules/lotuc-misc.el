@@ -12,7 +12,10 @@
                             protobuf-mode
                             scribble-mode
                             youdao-dictionary
-                            proof-general))
+                            proof-general
+                            restclient
+                            hide-mode-line
+                            google-c-style))
 
 (require 'magit)
 (require 'pdf-tools)
@@ -28,6 +31,18 @@
 (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
 (add-hook 'clojure-mode-hook          #'enable-paredit-mode)
 
+
+;; window
+(global-set-key (kbd "<C-up>") 'shrink-window)
+(global-set-key (kbd "<C-down>") 'enlarge-window)
+(global-set-key (kbd "<C-left>") 'shrink-window-horizontally)
+(global-set-key (kbd "<C-right>") 'enlarge-window-horizontally)
+
+;; google java style
+(autoload 'google-set-c-style "google-c-style")
+(autoload 'google-make-newline-indent "google-c-style")
+(add-hook 'c-mode-common-hook 'google-set-c-style)
+(add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
 ;; https://stackoverflow.com/questions/5019724/in-emacs-what-does-this-error-mean-warning-cl-package-required-at-runtime
 (eval-when-compile (require 'cl))
@@ -202,5 +217,8 @@ Version 2016-10-15"
             (setq helm-ag--last-query (format "--org %s" query))))))
     (helm-ag org-directory)))
 
+
+;; restclient
+(add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
 
 (provide 'lotuc-misc)

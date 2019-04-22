@@ -63,10 +63,6 @@
      (defun my-js-hook ()
        (make-local-variable 'company-transformers)
        (push 'my-company-transformer company-transformers))
-     (defun my-json-hook ()
-       (make-local-variable 'js-indent-level)
-       (setq js-indent-level 2))
-     (add-hook 'json-mode-hook 'my-json-hook)
      (add-hook 'js-mode-hook 'my-js-hook)))
 
 (add-hook 'css-mode-hook 'lotuc/css-defaults)

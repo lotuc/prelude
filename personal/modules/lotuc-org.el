@@ -7,6 +7,7 @@
                             helm-bbdb
                             org-attach-screenshot
                             ox-hugo
+                            ob-typescript
                             org-download
                             helm-org-rifle))
 
@@ -322,7 +323,8 @@ See `org-capture-templates' for more information."
 ;;;; babel
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((R . t)
+ '((typescript . t)
+   (R . t)
    (ruby . t)
    (org . t)
    (ditaa . t)
@@ -703,7 +705,7 @@ Switch projects and subprojects from NEXT back to TODO"
       (org-display-inline-images)
     (error nil)))
 
-(add-hook 'org-mode-hook 'lotuc/org-mode-hook)
+;; (add-hook 'org-mode-hook 'lotuc/org-mode-hook)
 (add-hook 'org-babel-after-execute-hook 'bh/display-inline-images 'append)
 (add-hook 'org-clock-out-hook 'bh/remove-empty-drawer-on-clock-out 'append)
 
